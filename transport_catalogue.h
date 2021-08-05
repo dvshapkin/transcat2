@@ -51,7 +51,7 @@ namespace transcat {
 
         void Serialize(const std::filesystem::path& path) const;
 
-        void Deserialize(const std::filesystem::path& path) const;
+        void Deserialize(const std::filesystem::path& path);
 
     private:
         std::deque<Stop> stops_;

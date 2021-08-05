@@ -8,6 +8,16 @@ message Stop {
   double longitude = 3;
 }
 
+message Bus {
+  string name = 1;
+  repeated Stop route = 2;
+  uint64 unique_stops = 3;
+  bool is_roundtrip = 4;
+  Stop start_stop = 5;
+  Stop end_stop = 6;
+}
+
 message TransportCatalogue {
   repeated Stop stops = 1;
+  repeated Bus buses = 2;
 }

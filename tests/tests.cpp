@@ -10,12 +10,12 @@ using namespace std::literals;
 using namespace transcat;
 
 TEST(SERIALIZE_SUITE, Test_01) {
-    TransportCatalogue db;
-    renderer::MapRenderer renderer;
-    RoutingSettings routing_settings;
-
     // Serialize
     {
+        TransportCatalogue db;
+        renderer::MapRenderer renderer;
+        RoutingSettings routing_settings;
+
         std::ifstream base_in("make_base_input1.json");
 
         json::Document doc = json::Load(base_in);
@@ -27,6 +27,10 @@ TEST(SERIALIZE_SUITE, Test_01) {
     }
     // Deserialize
     {
+        TransportCatalogue db;
+        renderer::MapRenderer renderer;
+        RoutingSettings routing_settings;
+
         std::ifstream requests_in("process_requests_input1.json");
 
         json::Document doc = json::Load(requests_in);
@@ -35,6 +39,11 @@ TEST(SERIALIZE_SUITE, Test_01) {
 
         query::JsonReader json_reader(db, renderer, routing_settings);
         auto stat_requests = json_reader.ParseStatRequests(doc);
+
+
         json_reader.WriteInfo(std::cout, stat_requests, routing_settings);
+
+        //std::ifstream etalon_out("etalon_out1.json");
+        //json::Document etalon = json::Load(etalon_out);
     }
 }
