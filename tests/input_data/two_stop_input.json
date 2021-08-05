@@ -1,0 +1,83 @@
+{
+    "base_requests": [
+        {
+            "is_roundtrip": true,
+            "name": "001",
+            "stops": [
+                "Zagorye",
+                "Lipetskaya",
+                "Zagorye"
+            ],
+            "type": "Bus"
+        },
+        {
+            "is_roundtrip": false,
+            "name": "002",
+            "stops": [
+                "Zagorye",
+                "Lipetskaya"
+            ],
+            "type": "Bus"
+        },
+        {
+            "is_roundtrip": true,
+            "name": "003",
+            "stops": [
+                "Zagorye",
+                "Lipetskaya",
+                "Lipetskaya",
+                "Zagorye"
+            ],
+            "type": "Bus"
+        },
+        {
+            "latitude": 55.579909,
+            "longitude": 37.68372,
+            "name": "Zagorye",
+            "road_distances": {
+                "Lipetskaya": 200
+            },
+            "type": "Stop"
+        },
+        {
+            "latitude": 55.581441,
+            "longitude": 37.682205,
+            "name": "Lipetskaya",
+            "road_distances": {
+                "Zagorye": 300,
+                "Lipetskaya": 100
+            },
+            "type": "Stop"
+        }
+    ],
+    "routing_settings": {
+        "bus_velocity": 6,
+        "bus_wait_time": 1
+    },
+    "stat_requests": [
+        {
+            "from": "Zagorye",
+            "id": 1,
+            "to": "Zagorye",
+            "type": "Route"
+        },
+        {
+            "from": "Zagorye",
+            "id": 2,
+            "to": "Lipetskaya",
+            "type": "Route"
+        },
+        {
+            "from": "Lipetskaya",
+            "id": 3,
+            "to": "Zagorye",
+            "type": "Route"
+        },
+        {
+            "from": "Lipetskaya",
+            "id": 4,
+            "to": "Lipetskaya",
+            "type": "Route"
+        }
+    ]
+}

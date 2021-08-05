@@ -1,0 +1,4 @@
+.idea
+/cmake-build-debug
+/tests/cmake-build-debug
+/data/transport_catalogue.db

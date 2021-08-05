@@ -1,0 +1,15 @@
+cmake_minimum_required(VERSION 3.19)
+project(transport_catalogue)
+
+set(CMAKE_CXX_STANDARD 17)
+
+add_definitions(-D_GLIBCXX_DEBUG)
+if(UNIX)
+    add_compile_options(-O0 -g3)
+endif()
+
+add_executable(transport_catalogue main.cpp)
+target_link_libraries(transport_catalogue transcat_lib)
+
+add_subdirectory(transcat_lib)
+add_subdirectory(tests)

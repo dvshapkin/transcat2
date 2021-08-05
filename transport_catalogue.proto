@@ -1,0 +1,13 @@
+syntax = "proto3";
+
+package trancat_proto;
+
+message Stop {
+  string name = 1;
+  double latitude = 2;
+  double longitude = 3;
+}
+
+message TransportCatalogue {
+  repeated Stop stops = 1;
+}

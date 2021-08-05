@@ -1,0 +1,75 @@
+{
+    "base_requests": [
+        {
+            "is_roundtrip": true,
+            "name": "001",
+            "stops": [
+            ],
+            "type": "Bus"
+        },
+        {
+            "is_roundtrip": false,
+            "name": "002",
+            "stops": [
+                "B"
+            ],
+            "type": "Bus"
+        },
+        {
+            "is_roundtrip": true,
+            "name": "003",
+            "stops": [
+            ],
+            "type": "Bus"
+        },
+        {
+            "latitude": 55.579909,
+            "longitude": 37.68372,
+            "name": "A",
+            "road_distances": {
+                "B": 200
+            },
+            "type": "Stop"
+        },
+        {
+            "latitude": 55.581441,
+            "longitude": 37.682205,
+            "name": "B",
+            "road_distances": {
+                "A": 300,
+                "B": 100
+            },
+            "type": "Stop"
+        }
+    ],
+    "routing_settings": {
+        "bus_velocity": 6,
+        "bus_wait_time": 1
+    },
+    "stat_requests": [
+        {
+            "from": "A",
+            "id": 1,
+            "to": "A",
+            "type": "Route"
+        },
+        {
+            "from": "A",
+            "id": 2,
+            "to": "B",
+            "type": "Route"
+        },
+        {
+            "from": "B",
+            "id": 3,
+            "to": "A",
+            "type": "Route"
+        },
+        {
+            "from": "B",
+            "id": 4,
+            "to": "B",
+            "type": "Route"
+        }
+    ]
+}

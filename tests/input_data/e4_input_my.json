@@ -1,0 +1,228 @@
+{
+    "base_requests": [
+        {
+            "latitude": 55.572308,
+            "longitude": 37.58821,
+            "name": "Vnukovo",
+            "road_distances": {
+                "Kiyevskoye sh 10": 736717,
+                "Kiyevskoye sh 100": 737402,
+                "Kiyevskoye sh 20": 85080,
+                "Kiyevskoye sh 30": 426639,
+                "Kiyevskoye sh 40": 141884,
+                "Kiyevskoye sh 50": 224766,
+                "Kiyevskoye sh 60": 902131,
+                "Kiyevskoye sh 70": 328591,
+                "Kiyevskoye sh 80": 805100,
+                "Kiyevskoye sh 90": 855121,
+                "Troparyovo": 315031
+            },
+            "type": "Stop"
+        },
+        {
+            "latitude": 55.609888777777776,
+            "longitude": 37.58821,
+            "name": "Troparyovo",
+            "road_distances": {
+                "Luzhniki": 887456,
+                "Pr Vernadskogo 10": 836197,
+                "Pr Vernadskogo 100": 574235,
+                "Pr Vernadskogo 20": 902943,
+                "Pr Vernadskogo 30": 564884,
+                "Pr Vernadskogo 40": 980896,
+                "Pr Vernadskogo 50": 364630,
+                "Pr Vernadskogo 60": 498213,
+                "Pr Vernadskogo 70": 597621,
+                "Pr Vernadskogo 80": 930723,
+                "Pr Vernadskogo 90": 295332
+            },
+            "type": "Stop"
+        },
+        {
+            "latitude": 55.64746955555555,
+            "longitude": 37.58821,
+            "name": "Luzhniki",
+            "road_distances": {
+                "Komsomolskiy pr 10": 417641,
+                "Komsomolskiy pr 100": 259353,
+                "Komsomolskiy pr 20": 156200,
+                "Komsomolskiy pr 30": 811711,
+                "Komsomolskiy pr 40": 75025,
+                "Komsomolskiy pr 50": 337894,
+                "Komsomolskiy pr 60": 466038,
+                "Komsomolskiy pr 70": 832566,
+                "Komsomolskiy pr 80": 699119,
+                "Komsomolskiy pr 90": 452348,
+                "Yandex": 415895
+            },
+            "type": "Stop"
+        },
+        {
+            "latitude": 55.65088598989899,
+            "longitude": 37.58821,
+            "name": "Komsomolskiy pr 10",
+            "road_distances": {
+                "Komsomolskiy pr 100": 457844,
+                "Komsomolskiy pr 20": 668171,
+                "Komsomolskiy pr 30": 316051,
+                "Komsomolskiy pr 40": 181773,
+                "Komsomolskiy pr 50": 744074,
+                "Komsomolskiy pr 60": 693784,
+                "Komsomolskiy pr 70": 418608,
+                "Komsomolskiy pr 80": 66706,
+                "Komsomolskiy pr 90": 924652,
+                "Yandex": 94288
+            },
+            "type": "Stop"
+        },
+        {
+            "latitude": 55.65771885858586,
+            "longitude": 37.58821,
+            "name": "Komsomolskiy pr 30",
+            "road_distances": {
+                "Komsomolskiy pr 100": 99385,
+                "Komsomolskiy pr 40": 596911,
+                "Komsomolskiy pr 50": 256707,
+                "Komsomolskiy pr 60": 579265,
+                "Komsomolskiy pr 70": 201563,
+                "Komsomolskiy pr 80": 574750,
+                "Komsomolskiy pr 90": 54708,
+                "Yandex": 531071
+            },
+            "type": "Stop"
+        },
+        {
+            "latitude": 55.66455172727273,
+            "longitude": 37.58821,
+            "name": "Komsomolskiy pr 50",
+            "road_distances": {
+                "Komsomolskiy pr 100": 827885,
+                "Komsomolskiy pr 60": 438685,
+                "Komsomolskiy pr 70": 625510,
+                "Komsomolskiy pr 80": 751286,
+                "Komsomolskiy pr 90": 92725,
+                "Yandex": 39057
+            },
+            "type": "Stop"
+        },
+        {
+            "latitude": 55.66796816161616,
+            "longitude": 37.58821,
+            "name": "Komsomolskiy pr 60",
+            "road_distances": {
+                "Komsomolskiy pr 100": 253791,
+                "Komsomolskiy pr 70": 356876,
+                "Komsomolskiy pr 80": 499445,
+                "Komsomolskiy pr 90": 203878,
+                "Yandex": 827258
+            },
+            "type": "Stop"
+        },
+        {
+            "latitude": 55.685050333333336,
+            "longitude": 37.58821,
+            "name": "Yandex",
+            "road_distances": {
+                "Kremlin": 811470,
+                "Ostozhenka 10": 362162,
+                "Ostozhenka 100": 947696,
+                "Ostozhenka 20": 42160,
+                "Ostozhenka 30": 732305,
+                "Ostozhenka 40": 324113,
+                "Ostozhenka 50": 384075,
+                "Ostozhenka 60": 808895,
+                "Ostozhenka 70": 118763,
+                "Ostozhenka 80": 978567,
+                "Ostozhenka 90": 264159
+            },
+            "type": "Stop"
+        },
+        {
+            "latitude": 55.72263111111111,
+            "longitude": 37.58821,
+            "name": "Kremlin",
+            "road_distances": {
+                "Manezh": 279323,
+                "Mokhovaya ul 10": 762623,
+                "Mokhovaya ul 100": 367294,
+                "Mokhovaya ul 20": 476712,
+                "Mokhovaya ul 30": 454480,
+                "Mokhovaya ul 40": 616020,
+                "Mokhovaya ul 50": 536791,
+                "Mokhovaya ul 60": 201055,
+                "Mokhovaya ul 70": 966883,
+                "Mokhovaya ul 80": 167343,
+                "Mokhovaya ul 90": 475071
+            },
+            "type": "Stop"
+        },
+        {
+            "is_roundtrip": false,
+            "name": "81",
+            "stops": [
+                "Vnukovo",
+                "Troparyovo",
+                "Luzhniki",
+                "Komsomolskiy pr 10",
+                "Komsomolskiy pr 30",
+                "Komsomolskiy pr 50",
+                "Komsomolskiy pr 60",
+                "Yandex",
+                "Kremlin",
+                "Mokhovaya ul 100",
+                "Manezh",
+                "Belorusskiy vokzal",
+                "Leningradskiy pr 10",
+                "Sokol",
+                "Khimki",
+                "Sheremetyevo"
+            ],
+            "type": "Bus"
+        }
+    ],
+    "render_settings": {
+        "bus_label_font_size": 20,
+        "bus_label_offset": [
+            7,
+            15
+        ],
+        "color_palette": [
+            "green",
+            [
+                255,
+                160,
+                0
+            ],
+            "red"
+        ],
+        "height": 200,
+        "line_width": 14,
+        "padding": 30,
+        "stop_label_font_size": 20,
+        "stop_label_offset": [
+            7,
+            -3
+        ],
+        "stop_radius": 5,
+        "underlayer_color": [
+            255,
+            255,
+            255,
+            0.85
+        ],
+        "underlayer_width": 3,
+        "width": 200
+    },
+    "routing_settings": {
+        "bus_velocity": 280,
+        "bus_wait_time": 490
+    },
+    "stat_requests": [
+        {
+            "from": "Komsomolskiy pr 30",
+            "id": 1357064407,
+            "to": "Vnukovo",
+            "type": "Route"
+        }
+    ]
+}
