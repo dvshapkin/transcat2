@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.19)
+cmake_minimum_required(VERSION 3.18)
 project(transport_catalogue)
 
 set(CMAKE_CXX_STANDARD 17)
@@ -10,7 +10,7 @@ endif ()
 
 find_package(Protobuf REQUIRED)
 find_package(Threads REQUIRED)
-protobuf_generate_cpp(PROTO_SRCS PROTO_HDRS transport_catalogue.proto)
+protobuf_generate_cpp(PROTO_SRCS PROTO_HDRS transport_catalogue.proto map_renderer.proto)
 
 add_executable(transport_catalogue
         main.cpp
@@ -28,6 +28,7 @@ add_executable(transport_catalogue
         request_handler.h request_handler.cpp
         transport_catalogue.h transport_catalogue.cpp
         profile.h
+        serialization.cpp serialization.h
         ${PROTO_SRCS} ${PROTO_HDRS})
 
 target_include_directories(transport_catalogue PUBLIC ${Protobuf_INCLUDE_DIRS})
@@ -38,7 +39,6 @@ string(REPLACE "protobuf.a" "protobufd.a" "Protobuf_LIBRARY_DEBUG" "${Protobuf_L
 target_link_libraries(transport_catalogue "$<IF:$<CONFIG:Debug>,${Protobuf_LIBRARY_DEBUG},${Protobuf_LIBRARY}>" Threads::Threads)
 
 if (UNIX)
-#    target_compile_options(transport_catalogue PRIVATE -Werror -Wall -Wextra)
     target_compile_options(transport_catalogue PRIVATE -Wall -Wextra)
 else ()
     target_compile_options(transport_catalogue PRIVATE /W3 /WX)

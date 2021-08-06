@@ -17,7 +17,14 @@ message Bus {
   Stop end_stop = 6;
 }
 
+message Distance {
+  Stop from = 1;
+  Stop to = 2;
+  int64 distance = 3;
+}
+
 message TransportCatalogue {
   repeated Stop stops = 1;
   repeated Bus buses = 2;
+  repeated Distance distances = 3;
 }

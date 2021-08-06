@@ -7,7 +7,7 @@ include_directories(${gtest_SOURCE_DIR}/include ${gtest_SOURCE_DIR})
 
 find_package(Protobuf REQUIRED)
 find_package(Threads REQUIRED)
-protobuf_generate_cpp(PROTO_SRCS PROTO_HDRS ../transport_catalogue.proto)
+protobuf_generate_cpp(PROTO_SRCS PROTO_HDRS ../transport_catalogue.proto ../map_renderer.proto)
 
 add_library(transcat_lib
         ../graph.h
@@ -24,6 +24,7 @@ add_library(transcat_lib
         ../request_handler.h ../request_handler.cpp
         ../transport_catalogue.h ../transport_catalogue.cpp
         ../profile.h
+        ../serialization.cpp ../serialization.h
         ${PROTO_SRCS} ${PROTO_HDRS})
 
 target_include_directories(transcat_lib PUBLIC ${Protobuf_INCLUDE_DIRS})

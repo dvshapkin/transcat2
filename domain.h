@@ -15,6 +15,9 @@
 #include <string>
 #include <list>
 #include <optional>
+#include <map>
+
+#include <transport_catalogue.pb.h>
 
 namespace transcat {
 
@@ -22,6 +25,22 @@ namespace transcat {
         std::string name;
         double latitude = 0;
         double longitude = 0;
+
+        trancat_proto::Stop ToProto() const {
+            trancat_proto::Stop proto_stop;
+            proto_stop.set_name(name);
+            proto_stop.set_latitude(latitude);
+            proto_stop.set_longitude(longitude);
+            return proto_stop;
+        }
+
+        static Stop FromProto(const trancat_proto::Stop &proto_stop) {
+            return {
+                    proto_stop.name(),
+                    proto_stop.latitude(),
+                    proto_stop.longitude()
+            };
+        }
     };
 
     using StopPtr = const Stop *;
@@ -34,6 +53,35 @@ namespace transcat {
         bool is_roundtrip = false;
         StopPtr start_stop = nullptr;
         StopPtr end_stop = nullptr;
+
+        trancat_proto::Bus ToProto() const {
+            trancat_proto::Bus proto_bus;
+            proto_bus.set_name(name);
+            proto_bus.set_unique_stops(unique_stops);
+            proto_bus.set_is_roundtrip(is_roundtrip);
+            for (StopPtr stop: route) {
+                proto_bus.mutable_route()->Add(stop->ToProto());
+            }
+            *proto_bus.mutable_start_stop() = std::move(start_stop->ToProto());
+            *proto_bus.mutable_end_stop() = std::move(end_stop->ToProto());
+            return proto_bus;
+        }
+
+        static Bus
+        FromProto(const trancat_proto::Bus &proto_bus, const std::map<std::string_view, StopPtr> &stops_by_name) {
+            Route route;
+            for (const trancat_proto::Stop &proto_stop: proto_bus.route()) {
+                route.emplace_back(stops_by_name.at(proto_stop.name()));
+            }
+            return {
+                    proto_bus.name(),
+                    std::move(route),
+                    proto_bus.unique_stops(),
+                    proto_bus.is_roundtrip(),
+                    stops_by_name.at(proto_bus.start_stop().name()),
+                    stops_by_name.at(proto_bus.end_stop().name())
+            };
+        }
     };
 
     struct StopPair {

@@ -87,79 +87,54 @@ namespace transcat {
         return stops_.size();
     }
 
-    void TransportCatalogue::Serialize(const std::filesystem::path &path) const {
+    void TransportCatalogue::Serialize(std::ofstream &out) const {
         trancat_proto::TransportCatalogue catalogue;
         // выгрузим stops_
         for (const Stop &stop: stops_) {
-            trancat_proto::Stop proto_stop;
-            proto_stop.set_name(stop.name);
-            proto_stop.set_latitude(stop.latitude);
-            proto_stop.set_longitude(stop.longitude);
-            catalogue.mutable_stops()->Add(std::move(proto_stop));
+            catalogue.mutable_stops()->Add(std::move(stop.ToProto()));
         }
         // выгрузим buses_
         for (const Bus &bus: buses_) {
-            trancat_proto::Bus proto_bus;
-            proto_bus.set_name(bus.name);
-            proto_bus.set_unique_stops(bus.unique_stops);
-            proto_bus.set_is_roundtrip(bus.is_roundtrip);
-            {   // start_stop
-                trancat_proto::Stop proto_stop;
-                proto_stop.set_name(bus.start_stop->name);
-                proto_stop.set_latitude(bus.start_stop->latitude);
-                proto_stop.set_longitude(bus.start_stop->longitude);
-                *proto_bus.mutable_start_stop() = std::move(proto_stop);
-            }
-            {   // end_stop
-                trancat_proto::Stop proto_stop;
-                proto_stop.set_name(bus.end_stop->name);
-                proto_stop.set_latitude(bus.end_stop->latitude);
-                proto_stop.set_longitude(bus.end_stop->longitude);
-                *proto_bus.mutable_end_stop() = std::move(proto_stop);
-            }
-            catalogue.mutable_buses()->Add(std::move(proto_bus));
+            catalogue.mutable_buses()->Add(std::move(bus.ToProto()));
+        }
+        // выгрузим distances_
+        for (const auto &[from_to, distance]: distances_) {
+            trancat_proto::Distance proto_distance;
+            *proto_distance.mutable_from() = from_to.from->ToProto();
+            *proto_distance.mutable_to() = from_to.to->ToProto();
+            proto_distance.set_distance(distance);
+            catalogue.mutable_distances()->Add(std::move(proto_distance));
         }
         // сохраним в файле
-        std::ofstream out(path, std::ios::binary);
+        //std::ofstream out(path, std::ios::binary);
         catalogue.SerializeToOstream(&out);
     }
 
-    void TransportCatalogue::Deserialize(const std::filesystem::path &path) {
-        std::ifstream in(path, std::ios::binary);
+    void TransportCatalogue::Deserialize(std::ifstream &in) {
+        //std::ifstream in(path, std::ios::binary);
         trancat_proto::TransportCatalogue catalogue;
         catalogue.ParseFromIstream(&in);
         // заполним stops_ и stops_by_name_
         for (const auto &proto_stop: catalogue.stops()) {
-            auto &ref_stop = stops_.emplace_back(
-                    Stop{
-                            proto_stop.name(),
-                            proto_stop.latitude(),
-                            proto_stop.longitude()
-                    }
-            );
+            auto &ref_stop = stops_.emplace_back(Stop::FromProto(proto_stop));
             stops_by_name_[ref_stop.name] = &ref_stop;
         }
         // заполним buses_ и buses_by_name_
         for (const auto &proto_bus: catalogue.buses()) {
-            Route route;
-            for () {
-                // TODO
-            }
-            const Stop* start_stop = route.front();
-            const Stop* end_stop = route.back();
-            auto &ref_bus = buses_.emplace_back(
-                    Bus{
-                            proto_bus.name(),
-                            std::move(route),
-                            proto_bus.unique_stops(),
-                            proto_bus.is_roundtrip(),
-                            start_stop,
-                            end_stop
-                    }
-            );
+            auto &ref_bus = buses_.emplace_back(Bus::FromProto(proto_bus, stops_by_name_));
             buses_by_name_[ref_bus.name] = &ref_bus;
+            for (StopPtr p_stop: ref_bus.route) {
+                buses_for_stop_[p_stop].insert(&ref_bus);
+            }
         }
-
+        // заполним distances_
+        for (const auto &proto_distance: catalogue.distances()) {
+            StopPair from_to {
+                stops_by_name_.at(proto_distance.from().name()),
+                stops_by_name_.at(proto_distance.to().name())
+            };
+            distances_[from_to] = static_cast<distance_t>(proto_distance.distance());
+        }
     }
 
     namespace geo {

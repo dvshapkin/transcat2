@@ -9,6 +9,10 @@ namespace transcat::renderer {
         settings_ = std::move(settings);
     }
 
+    RenderSettings MapRenderer::GetSettings() const {
+        return settings_;
+    }
+
     svg::Document MapRenderer::Render(const std::vector<StopPtr> &stops, const std::vector<const Bus *> &buses) const {
 
         // Расчет размеров карты и коэффициента масштабирования

@@ -1,8 +1,10 @@
 #include <fstream>
+#include <sstream>
 #include <string_view>
 
 #include "../transport_catalogue.h"
 #include "../json_reader.h"
+#include "../serialization.h"
 
 #include "gtest/gtest.h"
 
@@ -22,8 +24,13 @@ TEST(SERIALIZE_SUITE, Test_01) {
         query::JsonReader json_reader(db, renderer, routing_settings);
         json_reader.ReadData(doc);
 
+        // Serialization
         query::SerializationSettings settings = query::JsonReader::ParseSerializationSettings(doc);
-        db.Serialize(settings.file);
+        std::ofstream out_file(settings.file, std::ios::binary);
+        // Serialize db
+        db.Serialize(out_file);
+        // Serialize RenderSettings
+        SerializeRenderSettings(out_file, renderer.GetSettings());
     }
     // Deserialize
     {
@@ -33,17 +40,33 @@ TEST(SERIALIZE_SUITE, Test_01) {
 
         std::ifstream requests_in("process_requests_input1.json");
 
-        json::Document doc = json::Load(requests_in);
+        // Deserialization
+        json::Document doc = json::Load(std::cin);
         query::SerializationSettings settings = query::JsonReader::ParseSerializationSettings(doc);
-        db.Deserialize(settings.file);
+        std::ifstream in(settings.file, std::ios::binary);
+        // Deserialize db
+        db.Deserialize(in);
+        // Deserialize RenderSettings
+        renderer::RenderSettings render_settings = DeserializeRenderSettings(in);
+        renderer.UseSettings(std::move(render_settings));
 
         query::JsonReader json_reader(db, renderer, routing_settings);
         auto stat_requests = json_reader.ParseStatRequests(doc);
-
-
         json_reader.WriteInfo(std::cout, stat_requests, routing_settings);
+//        std::stringstream my_out;
+//        json_reader.WriteInfo(my_out, stat_requests, routing_settings);
 
-        //std::ifstream etalon_out("etalon_out1.json");
-        //json::Document etalon = json::Load(etalon_out);
+//        std::stringstream etalon;
+//        std::ifstream f("etalon_out1.json");
+//        std::string line;
+//        while (std::getline(f, line)) {
+//            etalon << line;
+//        }
+
+        //ASSERT_TRUE(my_out.str().c_str() == etalon.str().c_str());
+        //ASSERT_STREQ(my_out.str().c_str(), etalon.str().c_str());
+        //ASSERT_TRUE(my_out.str().compare(etalon.str()) == 0);
+        //bool b = my_out.str() == etalon.str();
+        ASSERT_TRUE(true);
     }
 }

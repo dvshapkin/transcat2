@@ -37,6 +37,8 @@ namespace transcat::renderer {
 
         void UseSettings(RenderSettings settings);
 
+        RenderSettings GetSettings() const;
+
         [[nodiscard]] svg::Document Render(const std::vector<StopPtr> &stops, const std::vector<const Bus *> &buses) const;
 
     private:

@@ -49,9 +49,9 @@ namespace transcat {
 
         size_t EvaluateVertexCount() const noexcept;
 
-        void Serialize(const std::filesystem::path& path) const;
+        void Serialize(std::ofstream &out) const;
 
-        void Deserialize(const std::filesystem::path& path);
+        void Deserialize(std::ifstream &in);
 
     private:
         std::deque<Stop> stops_;
