@@ -87,33 +87,26 @@ namespace transcat {
         return stops_.size();
     }
 
-    void TransportCatalogue::Serialize(std::ofstream &out) const {
-        trancat_proto::TransportCatalogue catalogue;
+    void TransportCatalogue::Serialize(pb3::TransportCatalogue &catalogue) const {
         // выгрузим stops_
         for (const Stop &stop: stops_) {
-            catalogue.mutable_stops()->Add(std::move(stop.ToProto()));
+            catalogue.mutable_stops()->Add(stop.ToProto());
         }
         // выгрузим buses_
         for (const Bus &bus: buses_) {
-            catalogue.mutable_buses()->Add(std::move(bus.ToProto()));
+            catalogue.mutable_buses()->Add(bus.ToProto());
         }
         // выгрузим distances_
         for (const auto &[from_to, distance]: distances_) {
-            trancat_proto::Distance proto_distance;
+            pb3::Distance proto_distance;
             *proto_distance.mutable_from() = from_to.from->ToProto();
             *proto_distance.mutable_to() = from_to.to->ToProto();
             proto_distance.set_distance(distance);
             catalogue.mutable_distances()->Add(std::move(proto_distance));
         }
-        // сохраним в файле
-        //std::ofstream out(path, std::ios::binary);
-        catalogue.SerializeToOstream(&out);
     }
 
-    void TransportCatalogue::Deserialize(std::ifstream &in) {
-        //std::ifstream in(path, std::ios::binary);
-        trancat_proto::TransportCatalogue catalogue;
-        catalogue.ParseFromIstream(&in);
+    void TransportCatalogue::Deserialize(pb3::TransportCatalogue &catalogue) {
         // заполним stops_ и stops_by_name_
         for (const auto &proto_stop: catalogue.stops()) {
             auto &ref_stop = stops_.emplace_back(Stop::FromProto(proto_stop));
@@ -129,9 +122,9 @@ namespace transcat {
         }
         // заполним distances_
         for (const auto &proto_distance: catalogue.distances()) {
-            StopPair from_to {
-                stops_by_name_.at(proto_distance.from().name()),
-                stops_by_name_.at(proto_distance.to().name())
+            StopPair from_to{
+                    stops_by_name_.at(proto_distance.from().name()),
+                    stops_by_name_.at(proto_distance.to().name())
             };
             distances_[from_to] = static_cast<distance_t>(proto_distance.distance());
         }

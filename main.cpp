@@ -32,23 +32,26 @@ int main(int argc, char* argv[]) {
         json_reader.ReadData(doc);
 
         // Serialization
+        pb3::TransportCatalogue catalogue;
+        db.Serialize(catalogue);
+        SerializeRenderSettings(catalogue, renderer.GetSettings());
+
         query::SerializationSettings settings = query::JsonReader::ParseSerializationSettings(doc);
         std::ofstream out_file(settings.file, std::ios::binary);
-        // Serialize db
-        db.Serialize(out_file);
-        // Serialize RenderSettings
-        SerializeRenderSettings(out_file, renderer.GetSettings());
+        catalogue.SerializeToOstream(&out_file);
+        out_file.close();
 
     } else if (mode == "process_requests"sv) {
 
         // Deserialization
         json::Document doc = json::Load(std::cin);
         query::SerializationSettings settings = query::JsonReader::ParseSerializationSettings(doc);
-        std::ifstream in(settings.file, std::ios::binary);
-        // Deserialize db
-        db.Deserialize(in);
-        // Deserialize RenderSettings
-        renderer::RenderSettings render_settings = DeserializeRenderSettings(in);
+        std::ifstream in_file(settings.file, std::ios::binary);
+
+        pb3::TransportCatalogue catalogue;
+        catalogue.ParseFromIstream(&in_file);
+        db.Deserialize(catalogue);
+        renderer::RenderSettings render_settings = DeserializeRenderSettings(catalogue);
         renderer.UseSettings(std::move(render_settings));
 
         query::JsonReader json_reader(db, renderer, routing_settings);

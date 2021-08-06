@@ -49,9 +49,9 @@ namespace transcat {
 
         size_t EvaluateVertexCount() const noexcept;
 
-        void Serialize(std::ofstream &out) const;
+        void Serialize(pb3::TransportCatalogue &catalogue) const;
 
-        void Deserialize(std::ifstream &in);
+        void Deserialize(pb3::TransportCatalogue &catalogue);
 
     private:
         std::deque<Stop> stops_;

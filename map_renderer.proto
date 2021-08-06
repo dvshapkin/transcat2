@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-package trancat_proto;
+package pb3;
 
 message Rgb {
   uint32 r = 1;

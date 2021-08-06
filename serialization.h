@@ -1,9 +1,10 @@
 #pragma once
 
+#include <filesystem>
 #include "map_renderer.h"
 
 using namespace transcat;
 
-void SerializeRenderSettings(std::ofstream &out, const renderer::RenderSettings& settings);
+void SerializeRenderSettings(pb3::TransportCatalogue &catalogue, const renderer::RenderSettings& settings);
 
-renderer::RenderSettings DeserializeRenderSettings(std::ifstream &in);
+renderer::RenderSettings DeserializeRenderSettings(pb3::TransportCatalogue &catalogue);

@@ -1,6 +1,8 @@
 syntax = "proto3";
 
-package trancat_proto;
+package pb3;
+
+import "map_renderer.proto";
 
 message Stop {
   string name = 1;
@@ -27,4 +29,5 @@ message TransportCatalogue {
   repeated Stop stops = 1;
   repeated Bus buses = 2;
   repeated Distance distances = 3;
+  RenderSettings render_settings = 4;
 }
