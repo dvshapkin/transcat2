@@ -16,7 +16,8 @@ namespace transcat {
 
     class CatalogueSerializer {
     public:
-        CatalogueSerializer(TransportCatalogue &db, const renderer::RenderSettings &render_settings);
+        CatalogueSerializer(TransportCatalogue &db, const renderer::RenderSettings &render_settings,
+                            const RoutingSettings &routing_settings);
 
         void SerializeTo(const std::filesystem::path &path);
 
@@ -25,11 +26,14 @@ namespace transcat {
 
         void SerializeRenderSettings();
 
+        void SerializeRoutingSettings();
+
         static pb3::Color ColorToProto(const svg::Color &color);
 
     private:
         const TransportCatalogue &db_;
         const renderer::RenderSettings &render_settings_;
+        const RoutingSettings &routing_settings_;
         pb3::TransportCatalogue proto_db_;
     };
 
@@ -45,6 +49,8 @@ namespace transcat {
 
         renderer::RenderSettings GetRenderSettings() const;
 
+        RoutingSettings GetRoutingSettings() const;
+
         void DeserializeFrom(const std::filesystem::path &path);
 
     private:
@@ -52,11 +58,14 @@ namespace transcat {
 
         void DeserializeRenderSettings();
 
+        void DeserializeRoutingSettings();
+
         static svg::Color ColorFromProto(const pb3::Color &proto_color);
 
     private:
         TransportCatalogue &db_;
         renderer::RenderSettings render_settings_;
+        RoutingSettings routing_settings_;
         pb3::TransportCatalogue proto_db_;
     };
 

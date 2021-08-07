@@ -24,18 +24,18 @@ int main(int argc, char* argv[]) {
 
     TransportCatalogue db;
     renderer::MapRenderer renderer;
-    RoutingSettings routing_settings;
+    //RoutingSettings routing_settings;
 
     const std::string_view mode(argv[1]);
 
     if (mode == "make_base"sv) {
 
         // Заполним БД
-        query::JsonReader json_reader(db, renderer, routing_settings);
+        query::JsonReader json_reader(db, renderer);
         json_reader.ReadData(doc);
 
         // Сереализуем
-        CatalogueSerializer serializer {db, renderer.GetSettings()};
+        CatalogueSerializer serializer {db, renderer.GetSettings(), json_reader.GetRoutingSettings()};
         serializer.SerializeTo(settings.file);
 
     } else if (mode == "process_requests"sv) {
@@ -46,9 +46,10 @@ int main(int argc, char* argv[]) {
         renderer.UseSettings(deserializer.GetRenderSettings());
 
         // Обработка запросов
-        query::JsonReader json_reader(db, renderer, routing_settings);
+        query::JsonReader json_reader(db, renderer);
+        json_reader.SetRoutingSettings(deserializer.GetRoutingSettings());
         auto stat_requests = json_reader.ParseStatRequests(doc);
-        json_reader.WriteInfo(std::cout, stat_requests, routing_settings);
+        json_reader.WriteInfo(std::cout, stat_requests);
 
     } else {
         PrintUsage();

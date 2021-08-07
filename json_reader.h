@@ -32,15 +32,19 @@ namespace transcat::query {
 
     class JsonReader {
     public:
-        JsonReader(TransportCatalogue &db, renderer::MapRenderer &renderer, RoutingSettings &routing_settings);
+        JsonReader(TransportCatalogue &db, renderer::MapRenderer &renderer);
 
         void ReadData(const json::Document &document);
 
-        void WriteInfo(std::ostream &out, const std::vector<query::StatRequest> &requests, RoutingSettings settings) const;
+        void WriteInfo(std::ostream &out, const std::vector<query::StatRequest> &requests) const;
 
         [[nodiscard]] std::vector<StatRequest> ParseStatRequests(const json::Document &document) const;
 
         static SerializationSettings ParseSerializationSettings(const json::Document &document);
+
+        [[nodiscard]] const RoutingSettings& GetRoutingSettings() const;
+
+        void SetRoutingSettings(const RoutingSettings& settings);
 
     private:
         void ParseBaseRequests(const json::Document &document) const;
@@ -53,7 +57,7 @@ namespace transcat::query {
 
         [[nodiscard]] svg::Color ParseColor(const json::Node &color) const;
 
-        void ParseRoutingSettings(const json::Document &document) const;
+        void ParseRoutingSettings(const json::Document &document);
 
         void WriteBusInfo(const RequestHandler &handler, json::Array &responses, const StatRequest &request) const;
 
@@ -80,7 +84,7 @@ namespace transcat::query {
     private:
         TransportCatalogue &db_;
         renderer::MapRenderer &renderer_;
-        RoutingSettings &routing_settings_;
+        RoutingSettings routing_settings_;
     };
 
 } // namespace transcat::query

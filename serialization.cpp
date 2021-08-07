@@ -10,13 +10,15 @@ namespace transcat {
     //
     ///////////////////////////////////////////////////////////////////////////////////////////////
 
-    CatalogueSerializer::CatalogueSerializer(TransportCatalogue &db, const renderer::RenderSettings &render_settings)
-            : db_(db), render_settings_(render_settings) {
+    CatalogueSerializer::CatalogueSerializer(TransportCatalogue &db, const renderer::RenderSettings &render_settings,
+                                             const RoutingSettings &routing_settings)
+            : db_(db), render_settings_(render_settings), routing_settings_(routing_settings) {
     }
 
     void CatalogueSerializer::SerializeTo(const std::filesystem::path &path) {
         SerializeDb();
         SerializeRenderSettings();
+        SerializeRoutingSettings();
         std::ofstream out_file(path, std::ios::binary);
         proto_db_.SerializeToOstream(&out_file);
         out_file.close();
@@ -61,6 +63,12 @@ namespace transcat {
         }
     }
 
+    void CatalogueSerializer::SerializeRoutingSettings() {
+        pb3::RoutingSettings *proto_settings = proto_db_.mutable_routing_settings();
+        proto_settings->set_bus_wait_time(routing_settings_.bus_wait_time);
+        proto_settings->set_bus_velocity(routing_settings_.bus_velocity);
+    }
+
     pb3::Color CatalogueSerializer::ColorToProto(const svg::Color &color) {
         pb3::Color proto_color;
         if (std::holds_alternative<std::string>(color)) {
@@ -101,11 +109,16 @@ namespace transcat {
         return render_settings_;
     }
 
+    RoutingSettings CatalogueDeserializer::GetRoutingSettings() const {
+        return routing_settings_;
+    }
+
     void CatalogueDeserializer::DeserializeFrom(const std::filesystem::path &path) {
         std::ifstream in_file(path, std::ios::binary);
         proto_db_.ParseFromIstream(&in_file);
         DeserializeDb();
         DeserializeRenderSettings();
+        DeserializeRoutingSettings();
         in_file.close();
     }
 
@@ -151,6 +164,12 @@ namespace transcat {
         for (const pb3::Color &proto_color: proto_settings.color_palette()) {
             render_settings_.color_palette.push_back(ColorFromProto(proto_color));
         }
+    }
+
+    void CatalogueDeserializer::DeserializeRoutingSettings() {
+        const pb3::RoutingSettings &proto_settings = proto_db_.routing_settings();
+        routing_settings_.bus_wait_time = proto_settings.bus_wait_time();
+        routing_settings_.bus_velocity = proto_settings.bus_velocity();
     }
 
     svg::Color CatalogueDeserializer::ColorFromProto(const pb3::Color &proto_color) {

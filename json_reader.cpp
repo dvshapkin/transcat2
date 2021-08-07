@@ -29,8 +29,16 @@ namespace transcat::query {
 
     ///////////////////////// JsonReader /////////////////////////////////
 
-    JsonReader::JsonReader(TransportCatalogue &db, renderer::MapRenderer &renderer, RoutingSettings &routing_settings)
-        : db_(db), renderer_(renderer), routing_settings_(routing_settings) {
+    JsonReader::JsonReader(TransportCatalogue &db, renderer::MapRenderer &renderer)
+        : db_(db), renderer_(renderer) {
+    }
+
+    const RoutingSettings& JsonReader::GetRoutingSettings() const {
+        return routing_settings_;
+    }
+
+    void JsonReader::SetRoutingSettings(const RoutingSettings& settings) {
+        routing_settings_ = settings;
     }
 
     void JsonReader::ReadData(const json::Document &document) {
@@ -39,9 +47,8 @@ namespace transcat::query {
         ParseRoutingSettings(document);
     }
 
-    void JsonReader::WriteInfo(std::ostream &out, const std::vector<query::StatRequest> &requests,
-                               RoutingSettings settings) const {
-        RequestHandler handler{db_, renderer_, settings, db_.EvaluateVertexCount()};
+    void JsonReader::WriteInfo(std::ostream &out, const std::vector<query::StatRequest> &requests) const {
+        RequestHandler handler{db_, renderer_, routing_settings_, db_.EvaluateVertexCount()};
         graph::Router<double> router(handler.GetRouteGraph());
         json::Array responses;
         for (const auto &request: requests) {
@@ -180,20 +187,14 @@ namespace transcat::query {
         }
     }
 
-    void JsonReader::ParseRoutingSettings(const json::Document &document) const {
+    void JsonReader::ParseRoutingSettings(const json::Document &document) {
         json::Dict data = document.GetRoot().AsDict();
         if (data.count("routing_settings"s)) {
             json::Dict routing_settings = data.at("routing_settings"s).AsDict();
-//            return {
-//                    routing_settings.at("bus_wait_time"s).AsInt(),
-//                    routing_settings.at("bus_velocity"s).AsDouble()
-//            };
-            routing_settings_ = {
-                    routing_settings.at("bus_wait_time"s).AsInt(),
-                    routing_settings.at("bus_velocity"s).AsDouble()
-            };
+
+            routing_settings_.bus_wait_time = routing_settings.at("bus_wait_time"s).AsInt();
+            routing_settings_.bus_velocity = routing_settings.at("bus_velocity"s).AsDouble();
         }
-        //return {};
     }
 
     SerializationSettings JsonReader::ParseSerializationSettings(const json::Document &document) {

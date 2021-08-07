@@ -16,16 +16,16 @@ TEST(SERIALIZE_SUITE, Test_01) {
     {
         TransportCatalogue db;
         renderer::MapRenderer renderer;
-        RoutingSettings routing_settings;
+        //RoutingSettings routing_settings;
 
         std::ifstream base_in("make_base_input1.json");
 
         json::Document doc = json::Load(base_in);
-        query::JsonReader json_reader(db, renderer, routing_settings);
+        query::JsonReader json_reader(db, renderer);
         json_reader.ReadData(doc);
 
         // Serialization
-        CatalogueSerializer serializer {db, renderer.GetSettings()};
+        CatalogueSerializer serializer {db, renderer.GetSettings(), json_reader.GetRoutingSettings()};
         query::SerializationSettings settings = query::JsonReader::ParseSerializationSettings(doc);
         serializer.SerializeTo(settings.file);
     }
@@ -33,7 +33,7 @@ TEST(SERIALIZE_SUITE, Test_01) {
     {
         TransportCatalogue db;
         renderer::MapRenderer renderer;
-        RoutingSettings routing_settings;
+        //RoutingSettings routing_settings;
 
         std::ifstream requests_in("process_requests_input1.json");
 
@@ -44,11 +44,12 @@ TEST(SERIALIZE_SUITE, Test_01) {
         deserializer.DeserializeFrom(settings.file);
         renderer.UseSettings(deserializer.GetRenderSettings());
 
-        query::JsonReader json_reader(db, renderer, routing_settings);
+        query::JsonReader json_reader(db, renderer);
+        json_reader.SetRoutingSettings(deserializer.GetRoutingSettings());
         auto stat_requests = json_reader.ParseStatRequests(doc);
         //json_reader.WriteInfo(std::cout, stat_requests, routing_settings);
         std::stringstream my_out;
-        json_reader.WriteInfo(my_out, stat_requests, routing_settings);
+        json_reader.WriteInfo(my_out, stat_requests);
         my_out << std::endl;
 
         std::stringstream etalon;
@@ -72,11 +73,11 @@ TEST(SERIALIZE_SUITE, Test_02) {
         std::ifstream base_in("make_base_input2.json");
 
         json::Document doc = json::Load(base_in);
-        query::JsonReader json_reader(db, renderer, routing_settings);
+        query::JsonReader json_reader(db, renderer);
         json_reader.ReadData(doc);
 
         // Serialization
-        CatalogueSerializer serializer {db, renderer.GetSettings()};
+        CatalogueSerializer serializer {db, renderer.GetSettings(), json_reader.GetRoutingSettings()};
         query::SerializationSettings settings = query::JsonReader::ParseSerializationSettings(doc);
         serializer.SerializeTo(settings.file);
     }
@@ -95,11 +96,12 @@ TEST(SERIALIZE_SUITE, Test_02) {
         deserializer.DeserializeFrom(settings.file);
         renderer.UseSettings(deserializer.GetRenderSettings());
 
-        query::JsonReader json_reader(db, renderer, routing_settings);
+        query::JsonReader json_reader(db, renderer);
+        json_reader.SetRoutingSettings(deserializer.GetRoutingSettings());
         auto stat_requests = json_reader.ParseStatRequests(doc);
         //json_reader.WriteInfo(std::cout, stat_requests, routing_settings);
         std::ofstream my_out("my_out2.json");
-        json_reader.WriteInfo(my_out, stat_requests, routing_settings);
+        json_reader.WriteInfo(my_out, stat_requests);
 
 
 //        std::stringstream my_out;
