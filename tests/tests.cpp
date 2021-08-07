@@ -25,17 +25,9 @@ TEST(SERIALIZE_SUITE, Test_01) {
         json_reader.ReadData(doc);
 
         // Serialization
-        pb3::TransportCatalogue catalogue;
-        // Serialize db
-        db.Serialize(catalogue);
-        // Serialize RenderSettings
-        SerializeRenderSettings(catalogue, renderer.GetSettings());
-        //std::ofstream out_file(path, std::ios::binary);
-
+        CatalogueSerializer serializer {db, renderer.GetSettings()};
         query::SerializationSettings settings = query::JsonReader::ParseSerializationSettings(doc);
-        std::ofstream out_file(settings.file, std::ios::binary);
-        catalogue.SerializeToOstream(&out_file);
-        out_file.close();
+        serializer.SerializeTo(settings.file);
     }
     // Deserialize
     {
@@ -48,34 +40,25 @@ TEST(SERIALIZE_SUITE, Test_01) {
         // Deserialization
         json::Document doc = json::Load(requests_in);
         query::SerializationSettings settings = query::JsonReader::ParseSerializationSettings(doc);
-        std::ifstream in_file(settings.file, std::ios::binary);
-
-        pb3::TransportCatalogue catalogue;
-        catalogue.ParseFromIstream(&in_file);
-        // Deserialize db
-        db.Deserialize(catalogue);
-        // Deserialize RenderSettings
-        renderer::RenderSettings render_settings = DeserializeRenderSettings(catalogue);
-        renderer.UseSettings(std::move(render_settings));
+        CatalogueDeserializer deserializer {db};
+        deserializer.DeserializeFrom(settings.file);
+        renderer.UseSettings(deserializer.GetRenderSettings());
 
         query::JsonReader json_reader(db, renderer, routing_settings);
         auto stat_requests = json_reader.ParseStatRequests(doc);
-        json_reader.WriteInfo(std::cout, stat_requests, routing_settings);
-//        std::stringstream my_out;
-//        json_reader.WriteInfo(my_out, stat_requests, routing_settings);
+        //json_reader.WriteInfo(std::cout, stat_requests, routing_settings);
+        std::stringstream my_out;
+        json_reader.WriteInfo(my_out, stat_requests, routing_settings);
+        my_out << std::endl;
 
-//        std::stringstream etalon;
-//        std::ifstream f("etalon_out1.json");
-//        std::string line;
-//        while (std::getline(f, line)) {
-//            etalon << line;
-//        }
+        std::stringstream etalon;
+        std::ifstream f("etalon_out1.json");
+        std::string line;
+        while (std::getline(f, line)) {
+            etalon << line << std::endl;
+        }
 
-        //ASSERT_TRUE(my_out.str().c_str() == etalon.str().c_str());
-        //ASSERT_STREQ(my_out.str().c_str(), etalon.str().c_str());
-        //ASSERT_TRUE(my_out.str().compare(etalon.str()) == 0);
-        //bool b = my_out.str() == etalon.str();
-        ASSERT_TRUE(true);
+        ASSERT_EQ(my_out.str(), etalon.str());
     }
 }
 
@@ -93,17 +76,9 @@ TEST(SERIALIZE_SUITE, Test_02) {
         json_reader.ReadData(doc);
 
         // Serialization
-        pb3::TransportCatalogue catalogue;
-        // Serialize db
-        db.Serialize(catalogue);
-        // Serialize RenderSettings
-        SerializeRenderSettings(catalogue, renderer.GetSettings());
-        //std::ofstream out_file(path, std::ios::binary);
-
+        CatalogueSerializer serializer {db, renderer.GetSettings()};
         query::SerializationSettings settings = query::JsonReader::ParseSerializationSettings(doc);
-        std::ofstream out_file(settings.file, std::ios::binary);
-        catalogue.SerializeToOstream(&out_file);
-        out_file.close();
+        serializer.SerializeTo(settings.file);
     }
     // Deserialize
     {
@@ -116,34 +91,29 @@ TEST(SERIALIZE_SUITE, Test_02) {
         // Deserialization
         json::Document doc = json::Load(requests_in);
         query::SerializationSettings settings = query::JsonReader::ParseSerializationSettings(doc);
-        std::ifstream in_file(settings.file, std::ios::binary);
-
-        pb3::TransportCatalogue catalogue;
-        catalogue.ParseFromIstream(&in_file);
-        // Deserialize db
-        db.Deserialize(catalogue);
-        // Deserialize RenderSettings
-        renderer::RenderSettings render_settings = DeserializeRenderSettings(catalogue);
-        renderer.UseSettings(std::move(render_settings));
+        CatalogueDeserializer deserializer {db};
+        deserializer.DeserializeFrom(settings.file);
+        renderer.UseSettings(deserializer.GetRenderSettings());
 
         query::JsonReader json_reader(db, renderer, routing_settings);
         auto stat_requests = json_reader.ParseStatRequests(doc);
-        json_reader.WriteInfo(std::cout, stat_requests, routing_settings);
-        //        std::stringstream my_out;
-        //        json_reader.WriteInfo(my_out, stat_requests, routing_settings);
+        //json_reader.WriteInfo(std::cout, stat_requests, routing_settings);
+        std::ofstream my_out("my_out2.json");
+        json_reader.WriteInfo(my_out, stat_requests, routing_settings);
 
-        //        std::stringstream etalon;
-        //        std::ifstream f("etalon_out1.json");
-        //        std::string line;
-        //        while (std::getline(f, line)) {
-        //            etalon << line;
-        //        }
 
-        //ASSERT_TRUE(my_out.str().c_str() == etalon.str().c_str());
-        //ASSERT_STREQ(my_out.str().c_str(), etalon.str().c_str());
-        //ASSERT_TRUE(my_out.str().compare(etalon.str()) == 0);
-        //bool b = my_out.str() == etalon.str();
-        ASSERT_TRUE(true);
+//        std::stringstream my_out;
+//        json_reader.WriteInfo(my_out, stat_requests, routing_settings);
+//        my_out << std::endl;
+//
+//        std::stringstream etalon;
+//        std::ifstream f("etalon_out1.json");
+//        std::string line;
+//        while (std::getline(f, line)) {
+//            etalon << line << std::endl;
+//        }
+//
+//        ASSERT_EQ(my_out.str(), etalon.str());
     }
 }
 

@@ -3,8 +3,8 @@ project(transport_catalogue)
 
 set(CMAKE_CXX_STANDARD 17)
 
-add_definitions(-D_GLIBCXX_DEBUG)
 if (UNIX)
+    set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -D_GLIBCXX_DEBUG")
     add_compile_options(-O0 -g3)
 endif ()
 

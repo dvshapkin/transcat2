@@ -19,7 +19,14 @@ namespace transcat {
 
     using distance_t = int;
 
+    class CatalogueSerializer;
+    class CatalogueDeserializer;
+
     class TransportCatalogue {
+
+        friend class CatalogueSerializer;
+        friend class CatalogueDeserializer;
+
     public:
         struct BusPtrComparator {
             bool operator()(const Bus * lhs, const Bus * rhs) const {
@@ -49,10 +56,6 @@ namespace transcat {
 
         size_t EvaluateVertexCount() const noexcept;
 
-        void Serialize(pb3::TransportCatalogue &catalogue) const;
-
-        void Deserialize(pb3::TransportCatalogue &catalogue);
-
     private:
         std::deque<Stop> stops_;
         std::deque<Bus> buses_;
@@ -60,6 +63,9 @@ namespace transcat {
         std::map<std::string_view, const Bus *> buses_by_name_;
         std::unordered_map<StopPtr, std::set<const Bus *, BusPtrComparator>> buses_for_stop_;
         std::unordered_map<StopPair, distance_t, StopPairHasher> distances_;
+
+    public:
+
     };
 
     namespace geo {

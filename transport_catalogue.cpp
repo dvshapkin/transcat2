@@ -5,8 +5,6 @@
 #include "transport_catalogue.h"
 #include "geo.h"
 
-#include <transport_catalogue.pb.h>
-
 namespace transcat {
 
     void TransportCatalogue::AddStop(const Stop &stop) {
@@ -85,49 +83,6 @@ namespace transcat {
 
     size_t TransportCatalogue::EvaluateVertexCount() const noexcept {
         return stops_.size();
-    }
-
-    void TransportCatalogue::Serialize(pb3::TransportCatalogue &catalogue) const {
-        // выгрузим stops_
-        for (const Stop &stop: stops_) {
-            catalogue.mutable_stops()->Add(stop.ToProto());
-        }
-        // выгрузим buses_
-        for (const Bus &bus: buses_) {
-            catalogue.mutable_buses()->Add(bus.ToProto());
-        }
-        // выгрузим distances_
-        for (const auto &[from_to, distance]: distances_) {
-            pb3::Distance proto_distance;
-            *proto_distance.mutable_from() = from_to.from->ToProto();
-            *proto_distance.mutable_to() = from_to.to->ToProto();
-            proto_distance.set_distance(distance);
-            catalogue.mutable_distances()->Add(std::move(proto_distance));
-        }
-    }
-
-    void TransportCatalogue::Deserialize(pb3::TransportCatalogue &catalogue) {
-        // заполним stops_ и stops_by_name_
-        for (const auto &proto_stop: catalogue.stops()) {
-            auto &ref_stop = stops_.emplace_back(Stop::FromProto(proto_stop));
-            stops_by_name_[ref_stop.name] = &ref_stop;
-        }
-        // заполним buses_ и buses_by_name_
-        for (const auto &proto_bus: catalogue.buses()) {
-            auto &ref_bus = buses_.emplace_back(Bus::FromProto(proto_bus, stops_by_name_));
-            buses_by_name_[ref_bus.name] = &ref_bus;
-            for (StopPtr p_stop: ref_bus.route) {
-                buses_for_stop_[p_stop].insert(&ref_bus);
-            }
-        }
-        // заполним distances_
-        for (const auto &proto_distance: catalogue.distances()) {
-            StopPair from_to{
-                    stops_by_name_.at(proto_distance.from().name()),
-                    stops_by_name_.at(proto_distance.to().name())
-            };
-            distances_[from_to] = static_cast<distance_t>(proto_distance.distance());
-        }
     }
 
     namespace geo {

@@ -19,6 +19,9 @@ int main(int argc, char* argv[]) {
         return 1;
     }
 
+    json::Document doc = json::Load(std::cin);
+    query::SerializationSettings settings = query::JsonReader::ParseSerializationSettings(doc);
+
     TransportCatalogue db;
     renderer::MapRenderer renderer;
     RoutingSettings routing_settings;
@@ -27,33 +30,22 @@ int main(int argc, char* argv[]) {
 
     if (mode == "make_base"sv) {
 
+        // Заполним БД
         query::JsonReader json_reader(db, renderer, routing_settings);
-        json::Document doc = json::Load(std::cin);
         json_reader.ReadData(doc);
 
-        // Serialization
-        pb3::TransportCatalogue catalogue;
-        db.Serialize(catalogue);
-        SerializeRenderSettings(catalogue, renderer.GetSettings());
-
-        query::SerializationSettings settings = query::JsonReader::ParseSerializationSettings(doc);
-        std::ofstream out_file(settings.file, std::ios::binary);
-        catalogue.SerializeToOstream(&out_file);
-        out_file.close();
+        // Сереализуем
+        CatalogueSerializer serializer {db, renderer.GetSettings()};
+        serializer.SerializeTo(settings.file);
 
     } else if (mode == "process_requests"sv) {
 
-        // Deserialization
-        json::Document doc = json::Load(std::cin);
-        query::SerializationSettings settings = query::JsonReader::ParseSerializationSettings(doc);
-        std::ifstream in_file(settings.file, std::ios::binary);
+        // Десериализуем
+        CatalogueDeserializer deserializer {db};
+        deserializer.DeserializeFrom(settings.file);
+        renderer.UseSettings(deserializer.GetRenderSettings());
 
-        pb3::TransportCatalogue catalogue;
-        catalogue.ParseFromIstream(&in_file);
-        db.Deserialize(catalogue);
-        renderer::RenderSettings render_settings = DeserializeRenderSettings(catalogue);
-        renderer.UseSettings(std::move(render_settings));
-
+        // Обработка запросов
         query::JsonReader json_reader(db, renderer, routing_settings);
         auto stat_requests = json_reader.ParseStatRequests(doc);
         json_reader.WriteInfo(std::cout, stat_requests, routing_settings);

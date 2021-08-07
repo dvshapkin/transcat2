@@ -9,7 +9,7 @@ namespace transcat::renderer {
         settings_ = std::move(settings);
     }
 
-    RenderSettings MapRenderer::GetSettings() const {
+    const RenderSettings& MapRenderer::GetSettings() const {
         return settings_;
     }
 
