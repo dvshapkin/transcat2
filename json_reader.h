@@ -37,7 +37,8 @@ namespace transcat::query {
         void ReadData(const json::Document &document);
 
         void WriteInfo(std::ostream &out, const std::vector<query::StatRequest> &requests,
-                       graph::DirectedWeightedGraph<double> route_graph) const;
+                       graph::DirectedWeightedGraph<double> route_graph,
+                       graph::Router<double>::RoutesInternalData routes_internal_data) const;
 
         [[nodiscard]] std::vector<StatRequest> ParseStatRequests(const json::Document &document) const;
 

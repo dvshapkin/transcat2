@@ -6,3 +6,12 @@ message RoutingSettings {
     int32 bus_wait_time = 1;
     double bus_velocity = 2;
 }
+
+message RouteInternalData {
+    double weight = 1;
+    uint64 prev_edge = 2;
+}
+
+message RoutesInternalData {
+    repeated RouteInternalData list = 1;
+}

@@ -40,7 +40,7 @@ int main(int argc, char *argv[]) {
 
         // Сереализуем
         CatalogueSerializer serializer{db, renderer.GetSettings(), json_reader.GetRoutingSettings(),
-                                       handler.GetRouteGraph()};
+                                       handler.GetRouteGraph(), router.GetRoutesInternalData()};
         serializer.SerializeTo(settings.file);
 
     } else if (mode == "process_requests"sv) {
@@ -54,7 +54,8 @@ int main(int argc, char *argv[]) {
         query::JsonReader json_reader(db, renderer);
         json_reader.SetRoutingSettings(deserializer.GetRoutingSettings());
         auto stat_requests = json_reader.ParseStatRequests(doc);
-        json_reader.WriteInfo(std::cout, stat_requests, deserializer.GetRouteGraph());
+        json_reader.WriteInfo(std::cout, stat_requests, deserializer.GetRouteGraph(),
+                              deserializer.GetRoutesInternalData());
 
     } else {
         PrintUsage();

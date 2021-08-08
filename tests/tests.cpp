@@ -21,12 +21,19 @@ TEST(SERIALIZE_SUITE, Test_01) {
         std::ifstream base_in("make_base_input1.json");
 
         json::Document doc = json::Load(base_in);
+        query::SerializationSettings settings = query::JsonReader::ParseSerializationSettings(doc);
+
+        // Заполним БД
         query::JsonReader json_reader(db, renderer);
         json_reader.ReadData(doc);
 
+        // Построим граф маршрутов
+        RequestHandler handler{db, renderer, json_reader.GetRoutingSettings(), db.EvaluateVertexCount()};
+        graph::Router<double> router(handler.GetRouteGraph());
+
         // Serialization
-        CatalogueSerializer serializer {db, renderer.GetSettings(), json_reader.GetRoutingSettings()};
-        query::SerializationSettings settings = query::JsonReader::ParseSerializationSettings(doc);
+        CatalogueSerializer serializer{db, renderer.GetSettings(), json_reader.GetRoutingSettings(),
+                                       handler.GetRouteGraph()};
         serializer.SerializeTo(settings.file);
     }
     // Deserialize
@@ -37,19 +44,20 @@ TEST(SERIALIZE_SUITE, Test_01) {
 
         std::ifstream requests_in("process_requests_input1.json");
 
-        // Deserialization
         json::Document doc = json::Load(requests_in);
         query::SerializationSettings settings = query::JsonReader::ParseSerializationSettings(doc);
-        CatalogueDeserializer deserializer {db};
+
+        // Десериализуем
+        CatalogueDeserializer deserializer{db};
         deserializer.DeserializeFrom(settings.file);
         renderer.UseSettings(deserializer.GetRenderSettings());
 
         query::JsonReader json_reader(db, renderer);
         json_reader.SetRoutingSettings(deserializer.GetRoutingSettings());
         auto stat_requests = json_reader.ParseStatRequests(doc);
-        //json_reader.WriteInfo(std::cout, stat_requests, routing_settings);
+        //json_reader.WriteInfo(std::cout, stat_requests, deserializer.GetRouteGraph());
         std::stringstream my_out;
-        json_reader.WriteInfo(my_out, stat_requests);
+        json_reader.WriteInfo(my_out, stat_requests, deserializer.GetRouteGraph());
         my_out << std::endl;
 
         std::stringstream etalon;
@@ -73,12 +81,19 @@ TEST(SERIALIZE_SUITE, Test_02) {
         std::ifstream base_in("make_base_input2.json");
 
         json::Document doc = json::Load(base_in);
+        query::SerializationSettings settings = query::JsonReader::ParseSerializationSettings(doc);
+
+        // Заполним БД
         query::JsonReader json_reader(db, renderer);
         json_reader.ReadData(doc);
 
+        // Построим граф маршрутов
+        RequestHandler handler{db, renderer, json_reader.GetRoutingSettings(), db.EvaluateVertexCount()};
+        graph::Router<double> router(handler.GetRouteGraph());
+
         // Serialization
-        CatalogueSerializer serializer {db, renderer.GetSettings(), json_reader.GetRoutingSettings()};
-        query::SerializationSettings settings = query::JsonReader::ParseSerializationSettings(doc);
+        CatalogueSerializer serializer{db, renderer.GetSettings(), json_reader.GetRoutingSettings(),
+                                       handler.GetRouteGraph()};
         serializer.SerializeTo(settings.file);
     }
     // Deserialize
@@ -92,16 +107,16 @@ TEST(SERIALIZE_SUITE, Test_02) {
         // Deserialization
         json::Document doc = json::Load(requests_in);
         query::SerializationSettings settings = query::JsonReader::ParseSerializationSettings(doc);
-        CatalogueDeserializer deserializer {db};
+        CatalogueDeserializer deserializer{db};
         deserializer.DeserializeFrom(settings.file);
         renderer.UseSettings(deserializer.GetRenderSettings());
 
         query::JsonReader json_reader(db, renderer);
         json_reader.SetRoutingSettings(deserializer.GetRoutingSettings());
         auto stat_requests = json_reader.ParseStatRequests(doc);
-        //json_reader.WriteInfo(std::cout, stat_requests, routing_settings);
+        //json_reader.WriteInfo(std::cout, stat_requests, deserializer.GetRouteGraph());
         std::ofstream my_out("my_out2.json");
-        json_reader.WriteInfo(my_out, stat_requests);
+        json_reader.WriteInfo(my_out, stat_requests, deserializer.GetRouteGraph());
 
 
 //        std::stringstream my_out;

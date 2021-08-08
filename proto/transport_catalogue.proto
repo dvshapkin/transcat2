@@ -33,6 +33,7 @@ message TransportCatalogue {
   repeated Distance distances = 3;
   repeated Bus edges_to_buses = 4;
   repeated Edge edges = 5;
-  RenderSettings render_settings = 6;
-  RoutingSettings routing_settings = 7;
+  repeated RoutesInternalData router = 6;
+  RenderSettings render_settings = 7;
+  RoutingSettings routing_settings = 8;
 }

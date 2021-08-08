@@ -13,13 +13,19 @@ namespace transcat {
     CatalogueSerializer::CatalogueSerializer(const TransportCatalogue &db,
                                              const renderer::RenderSettings &render_settings,
                                              const RoutingSettings &routing_settings,
-                                             const graph::DirectedWeightedGraph<double> &graph)
-            : db_(db), graph_(graph), render_settings_(render_settings), routing_settings_(routing_settings) {
+                                             const graph::DirectedWeightedGraph<double> &graph,
+                                             const graph::Router<double>::RoutesInternalData &routes_internal_data)
+            : db_(db)
+            , graph_(graph)
+            , routes_internal_data_(routes_internal_data)
+            , render_settings_(render_settings)
+            , routing_settings_(routing_settings) {
     }
 
     void CatalogueSerializer::SerializeTo(const std::filesystem::path &path) {
         SerializeDb();
         SerializeGraph();
+        SerializeRoutesInternalData();
         SerializeRenderSettings();
         SerializeRoutingSettings();
         std::ofstream out_file(path, std::ios::binary);
@@ -60,6 +66,10 @@ namespace transcat {
             proto_edge.set_span_count(edge.span_count);
             proto_db_.mutable_edges()->Add(std::move(proto_edge));
         }
+    }
+
+    void CatalogueSerializer::SerializeRoutesInternalData() {
+
     }
 
     void CatalogueSerializer::SerializeRenderSettings() {
@@ -136,11 +146,16 @@ namespace transcat {
         return graph_;
     }
 
+    graph::Router<double>::RoutesInternalData CatalogueDeserializer::GetRoutesInternalData() const {
+        return routes_internal_data_;
+    }
+
     void CatalogueDeserializer::DeserializeFrom(const std::filesystem::path &path) {
         std::ifstream in_file(path, std::ios::binary);
         proto_db_.ParseFromIstream(&in_file);
         DeserializeDb();
         DeserializeGraph();
+        DeserializeRoutesInternalData();
         DeserializeRenderSettings();
         DeserializeRoutingSettings();
         in_file.close();
@@ -175,15 +190,21 @@ namespace transcat {
     }
 
     void CatalogueDeserializer::DeserializeGraph() {
+        graph::DirectedWeightedGraph<double> g(db_.EvaluateVertexCount());
+        graph_ = g;
         for (const auto &proto_edge: proto_db_.edges()) {
-            graph::Edge<double> edge {
-                proto_edge.from(),
-                proto_edge.to(),
-                proto_edge.weight(),
-                proto_edge.span_count()
+            graph::Edge<double> edge{
+                    proto_edge.from(),
+                    proto_edge.to(),
+                    proto_edge.weight(),
+                    proto_edge.span_count()
             };
             graph_.AddEdge(edge);
         }
+    }
+
+    void CatalogueDeserializer::DeserializeRoutesInternalData() {
+
     }
 
     void CatalogueDeserializer::DeserializeRenderSettings() {

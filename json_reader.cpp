@@ -48,14 +48,16 @@ namespace transcat::query {
     }
 
     void JsonReader::WriteInfo(std::ostream &out, const std::vector<query::StatRequest> &requests,
-                               graph::DirectedWeightedGraph<double> route_graph) const {
+                               graph::DirectedWeightedGraph<double> route_graph,
+                               graph::Router<double>::RoutesInternalData routes_internal_data) const {
         RequestHandler handler{db_,
                                renderer_,
                                routing_settings_,
                                db_.EvaluateVertexCount(),
                                route_graph
         };
-        graph::Router<double> router(handler.GetRouteGraph());
+        //graph::Router<double> router(handler.GetRouteGraph());
+        graph::Router<double> router(handler.GetRouteGraph(), routes_internal_data);
         json::Array responses;
         for (const auto &request: requests) {
             switch (request.type) {
