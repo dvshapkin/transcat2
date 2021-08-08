@@ -30,14 +30,14 @@ namespace transcat::query {
     ///////////////////////// JsonReader /////////////////////////////////
 
     JsonReader::JsonReader(TransportCatalogue &db, renderer::MapRenderer &renderer)
-        : db_(db), renderer_(renderer) {
+            : db_(db), renderer_(renderer) {
     }
 
-    const RoutingSettings& JsonReader::GetRoutingSettings() const {
+    const RoutingSettings &JsonReader::GetRoutingSettings() const {
         return routing_settings_;
     }
 
-    void JsonReader::SetRoutingSettings(const RoutingSettings& settings) {
+    void JsonReader::SetRoutingSettings(const RoutingSettings &settings) {
         routing_settings_ = settings;
     }
 
@@ -47,8 +47,14 @@ namespace transcat::query {
         ParseRoutingSettings(document);
     }
 
-    void JsonReader::WriteInfo(std::ostream &out, const std::vector<query::StatRequest> &requests) const {
-        RequestHandler handler{db_, renderer_, routing_settings_, db_.EvaluateVertexCount()};
+    void JsonReader::WriteInfo(std::ostream &out, const std::vector<query::StatRequest> &requests,
+                               graph::DirectedWeightedGraph<double> route_graph) const {
+        RequestHandler handler{db_,
+                               renderer_,
+                               routing_settings_,
+                               db_.EvaluateVertexCount(),
+                               route_graph
+        };
         graph::Router<double> router(handler.GetRouteGraph());
         json::Array responses;
         for (const auto &request: requests) {
@@ -366,7 +372,7 @@ namespace transcat::query {
     }
 
     void JsonReader::MakeRouteItems(const RequestHandler &handler,
-                                      const graph::Router<double>::RouteInfo &route_info, json::Array &items) const {
+                                    const graph::Router<double>::RouteInfo &route_info, json::Array &items) const {
 
         auto settings = handler.GetRoutingSettings();
 

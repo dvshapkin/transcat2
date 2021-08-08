@@ -1,7 +1,10 @@
 #include "request_handler.h"
 
+#include <utility>
+
 namespace transcat {
 
+    // Этот конструктор строит граф "с нуля"
     RequestHandler::RequestHandler(const TransportCatalogue &db, const renderer::MapRenderer &renderer,
                                    RoutingSettings settings, size_t vertex_count)
             : db_(db), renderer_(renderer), settings_(settings), route_graph_(vertex_count),
@@ -30,20 +33,38 @@ namespace transcat {
                     if (from_it != to_it) {
                         weight += db_.GetDistance({*current_it, *to_it}) / normal_velocity;
                         graph::EdgeId edge_id = route_graph_.AddEdge({
-                                                     GetVertexForStop(*from_it),
-                                                     GetVertexForStop(*to_it),
-                                                     weight + settings_.bus_wait_time,
-                                                     //p_bus,
-                                                     ++span_count
-                                             });
+                                                                             GetVertexForStop(*from_it),
+                                                                             GetVertexForStop(*to_it),
+                                                                             weight + settings_.bus_wait_time,
+                                                                             //p_bus,
+                                                                             ++span_count
+                                                                     });
                         SetBusForEdge(edge_id, p_bus);
                     }
                     //if (*to_it == p_bus->end_stop && !p_bus->is_roundtrip) {
-                    if (!p_bus->is_roundtrip && to_it == next(p_bus->route.begin(), p_bus->route.size()/2)) {
+                    if (!p_bus->is_roundtrip && to_it == next(p_bus->route.begin(), p_bus->route.size() / 2)) {
                         break;
                     }
                 }
             }
+        }
+    }
+
+    // Этот конструктор принимает готовый граф
+    RequestHandler::RequestHandler(const TransportCatalogue &db, const renderer::MapRenderer &renderer,
+                                   RoutingSettings settings, size_t vertex_count,
+                                   graph::DirectedWeightedGraph<double> route_graph)
+            : db_(db), renderer_(renderer), settings_(settings), route_graph_(std::move(route_graph)),
+              stops_to_vrtx_(vertex_count) {
+
+        vrtx_to_stops_.resize(vertex_count);
+
+        // индексация остановок
+        graph::VertexId vrtx = 0;
+        for (const auto p_stop: db_.GetAllStops()) {
+            stops_to_vrtx_.emplace(p_stop, vrtx);
+            vrtx_to_stops_[vrtx] = p_stop;
+            ++vrtx;
         }
     }
 
@@ -116,11 +137,11 @@ namespace transcat {
         return vrtx_to_stops_.at(vertex_id);
     }
 
-    const Bus* RequestHandler::GetBusByEdge(graph::EdgeId edge_id) const {
+    const Bus *RequestHandler::GetBusByEdge(graph::EdgeId edge_id) const {
         return db_.GetBusByEdge(edge_id);
     }
 
-    void RequestHandler::SetBusForEdge(graph::EdgeId edge_id, const Bus* p_bus) const {
+    void RequestHandler::SetBusForEdge(graph::EdgeId edge_id, const Bus *p_bus) const {
         db_.SetBusForEdge(edge_id, p_bus);
     }
 

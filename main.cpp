@@ -9,11 +9,11 @@
 using namespace std::literals;
 using namespace transcat;
 
-void PrintUsage(std::ostream& stream = std::cerr) {
+void PrintUsage(std::ostream &stream = std::cerr) {
     stream << "Usage: transport_catalogue [make_base|process_requests]\n"sv;
 }
 
-int main(int argc, char* argv[]) {
+int main(int argc, char *argv[]) {
     if (argc != 2) {
         PrintUsage();
         return 1;
@@ -39,13 +39,14 @@ int main(int argc, char* argv[]) {
         graph::Router<double> router(handler.GetRouteGraph());
 
         // Сереализуем
-        CatalogueSerializer serializer {db, renderer.GetSettings(), json_reader.GetRoutingSettings()};
+        CatalogueSerializer serializer{db, renderer.GetSettings(), json_reader.GetRoutingSettings(),
+                                       handler.GetRouteGraph()};
         serializer.SerializeTo(settings.file);
 
     } else if (mode == "process_requests"sv) {
 
         // Десериализуем
-        CatalogueDeserializer deserializer {db};
+        CatalogueDeserializer deserializer{db};
         deserializer.DeserializeFrom(settings.file);
         renderer.UseSettings(deserializer.GetRenderSettings());
 
@@ -53,7 +54,7 @@ int main(int argc, char* argv[]) {
         query::JsonReader json_reader(db, renderer);
         json_reader.SetRoutingSettings(deserializer.GetRoutingSettings());
         auto stat_requests = json_reader.ParseStatRequests(doc);
-        json_reader.WriteInfo(std::cout, stat_requests);
+        json_reader.WriteInfo(std::cout, stat_requests, deserializer.GetRouteGraph());
 
     } else {
         PrintUsage();

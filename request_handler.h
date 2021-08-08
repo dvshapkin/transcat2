@@ -27,6 +27,10 @@ namespace transcat {
         RequestHandler(const TransportCatalogue &db, const renderer::MapRenderer &renderer, RoutingSettings settings,
                        size_t vertex_count);
 
+        RequestHandler(const TransportCatalogue &db, const renderer::MapRenderer &renderer,
+                                       RoutingSettings settings, size_t vertex_count,
+                                       graph::DirectedWeightedGraph<double> route_graph);
+
         // Проверяет наличие остановки в БД
         bool IsStopExists(const std::string_view &stop_name) const;
 
@@ -57,9 +61,9 @@ namespace transcat {
 
         StopPtr GetStopForVertex(graph::VertexId vertex_id) const;
 
-        const Bus* GetBusByEdge(graph::EdgeId edge_id) const;
+        const Bus *GetBusByEdge(graph::EdgeId edge_id) const;
 
-        void SetBusForEdge(graph::EdgeId edge_id, const Bus* p_bus) const;
+        void SetBusForEdge(graph::EdgeId edge_id, const Bus *p_bus) const;
 
     private:
         // RequestHandler использует агрегацию объектов "Транспортный Справочник" и "Визуализатор Карты"

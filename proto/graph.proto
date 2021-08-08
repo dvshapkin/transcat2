@@ -6,18 +6,5 @@ message Edge {
   uint64 from = 1;
   uint64 to = 2;
   double weight = 3;
-  // p_bus
-  int32 span_count = 5;
+  int32 span_count = 4;
 }
-
-//message IncidenceList {
-//  repeated uint64 edge_id = 1;
-//}
-
-message Edges {
-  repeated Edge edges = 1;
-}
-
-//message IncidenceLists {
-//  repeated IncidenceList incidence_lists = 1;
-//}

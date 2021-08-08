@@ -10,13 +10,16 @@ namespace transcat {
     //
     ///////////////////////////////////////////////////////////////////////////////////////////////
 
-    CatalogueSerializer::CatalogueSerializer(TransportCatalogue &db, const renderer::RenderSettings &render_settings,
-                                             const RoutingSettings &routing_settings)
-            : db_(db), render_settings_(render_settings), routing_settings_(routing_settings) {
+    CatalogueSerializer::CatalogueSerializer(const TransportCatalogue &db,
+                                             const renderer::RenderSettings &render_settings,
+                                             const RoutingSettings &routing_settings,
+                                             const graph::DirectedWeightedGraph<double> &graph)
+            : db_(db), graph_(graph), render_settings_(render_settings), routing_settings_(routing_settings) {
     }
 
     void CatalogueSerializer::SerializeTo(const std::filesystem::path &path) {
         SerializeDb();
+        SerializeGraph();
         SerializeRenderSettings();
         SerializeRoutingSettings();
         std::ofstream out_file(path, std::ios::binary);
@@ -40,6 +43,22 @@ namespace transcat {
             *proto_distance.mutable_to() = from_to.to->ToProto();
             proto_distance.set_distance(distance);
             proto_db_.mutable_distances()->Add(std::move(proto_distance));
+        }
+        // выгрузим edges_to_buses_
+        for (const Bus *p_bus: db_.edges_to_buses_) {
+            proto_db_.mutable_edges_to_buses()->Add(p_bus->ToProto());
+        }
+    }
+
+    void CatalogueSerializer::SerializeGraph() {
+        for (graph::EdgeId edge_id = 0; edge_id < graph_.GetEdgeCount(); ++edge_id) {
+            const auto &edge = graph_.GetEdge(edge_id);
+            pb3::Edge proto_edge;
+            proto_edge.set_from(edge.from);
+            proto_edge.set_to(edge.to);
+            proto_edge.set_weight(edge.weight);
+            proto_edge.set_span_count(edge.span_count);
+            proto_db_.mutable_edges()->Add(std::move(proto_edge));
         }
     }
 
@@ -113,10 +132,15 @@ namespace transcat {
         return routing_settings_;
     }
 
+    graph::DirectedWeightedGraph<double> CatalogueDeserializer::GetRouteGraph() const {
+        return graph_;
+    }
+
     void CatalogueDeserializer::DeserializeFrom(const std::filesystem::path &path) {
         std::ifstream in_file(path, std::ios::binary);
         proto_db_.ParseFromIstream(&in_file);
         DeserializeDb();
+        DeserializeGraph();
         DeserializeRenderSettings();
         DeserializeRoutingSettings();
         in_file.close();
@@ -143,6 +167,22 @@ namespace transcat {
                     db_.stops_by_name_.at(proto_distance.to().name())
             };
             db_.distances_[from_to] = static_cast<distance_t>(proto_distance.distance());
+        }
+        // заполним edges_to_buses_
+        for (const auto &proto_bus: proto_db_.edges_to_buses()) {
+            db_.edges_to_buses_.push_back(db_.buses_by_name_[proto_bus.name()]);
+        }
+    }
+
+    void CatalogueDeserializer::DeserializeGraph() {
+        for (const auto &proto_edge: proto_db_.edges()) {
+            graph::Edge<double> edge {
+                proto_edge.from(),
+                proto_edge.to(),
+                proto_edge.weight(),
+                proto_edge.span_count()
+            };
+            graph_.AddEdge(edge);
         }
     }
 

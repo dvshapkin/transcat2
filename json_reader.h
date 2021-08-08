@@ -36,15 +36,16 @@ namespace transcat::query {
 
         void ReadData(const json::Document &document);
 
-        void WriteInfo(std::ostream &out, const std::vector<query::StatRequest> &requests) const;
+        void WriteInfo(std::ostream &out, const std::vector<query::StatRequest> &requests,
+                       graph::DirectedWeightedGraph<double> route_graph) const;
 
         [[nodiscard]] std::vector<StatRequest> ParseStatRequests(const json::Document &document) const;
 
         static SerializationSettings ParseSerializationSettings(const json::Document &document);
 
-        [[nodiscard]] const RoutingSettings& GetRoutingSettings() const;
+        [[nodiscard]] const RoutingSettings &GetRoutingSettings() const;
 
-        void SetRoutingSettings(const RoutingSettings& settings);
+        void SetRoutingSettings(const RoutingSettings &settings);
 
     private:
         void ParseBaseRequests(const json::Document &document) const;
@@ -79,7 +80,7 @@ namespace transcat::query {
         [[nodiscard]] json::Dict MakeWaitItem(const std::string &stop_name, int wait_time) const;
 
         void MakeRouteItems(const RequestHandler &handler, const graph::Router<double>::RouteInfo &route_info,
-                       json::Array &items) const;
+                            json::Array &items) const;
 
     private:
         TransportCatalogue &db_;

@@ -16,13 +16,17 @@ namespace transcat {
 
     class CatalogueSerializer {
     public:
-        CatalogueSerializer(TransportCatalogue &db, const renderer::RenderSettings &render_settings,
-                            const RoutingSettings &routing_settings);
+        CatalogueSerializer(const TransportCatalogue &db,
+                            const renderer::RenderSettings &render_settings,
+                            const RoutingSettings &routing_settings,
+                            const graph::DirectedWeightedGraph<double> &graph);
 
         void SerializeTo(const std::filesystem::path &path);
 
     private:
         void SerializeDb();
+
+        void SerializeGraph();
 
         void SerializeRenderSettings();
 
@@ -32,6 +36,7 @@ namespace transcat {
 
     private:
         const TransportCatalogue &db_;
+        const graph::DirectedWeightedGraph<double> &graph_;
         const renderer::RenderSettings &render_settings_;
         const RoutingSettings &routing_settings_;
         pb3::TransportCatalogue proto_db_;
@@ -51,10 +56,14 @@ namespace transcat {
 
         RoutingSettings GetRoutingSettings() const;
 
+        graph::DirectedWeightedGraph<double> GetRouteGraph() const;
+
         void DeserializeFrom(const std::filesystem::path &path);
 
     private:
         void DeserializeDb() const;
+
+        void DeserializeGraph();
 
         void DeserializeRenderSettings();
 
@@ -64,6 +73,7 @@ namespace transcat {
 
     private:
         TransportCatalogue &db_;
+        graph::DirectedWeightedGraph<double> graph_;
         renderer::RenderSettings render_settings_;
         RoutingSettings routing_settings_;
         pb3::TransportCatalogue proto_db_;
