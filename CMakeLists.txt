@@ -11,11 +11,11 @@ endif ()
 find_package(Protobuf REQUIRED)
 find_package(Threads REQUIRED)
 protobuf_generate_cpp(PROTO_SRCS PROTO_HDRS
-        transport_catalogue.proto
-        map_renderer.proto
-        svg.proto
-        graph.proto
-        transport_router.proto)
+        proto/transport_catalogue.proto
+        proto/map_renderer.proto
+        proto/svg.proto
+        proto/graph.proto
+        proto/transport_router.proto)
 
 add_executable(transport_catalogue
         main.cpp

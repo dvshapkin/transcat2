@@ -57,6 +57,10 @@ namespace transcat {
 
         StopPtr GetStopForVertex(graph::VertexId vertex_id) const;
 
+        const Bus* GetBusByEdge(graph::EdgeId edge_id) const;
+
+        void SetBusForEdge(graph::EdgeId edge_id, const Bus* p_bus) const;
+
     private:
         // RequestHandler использует агрегацию объектов "Транспортный Справочник" и "Визуализатор Карты"
         const TransportCatalogue &db_;

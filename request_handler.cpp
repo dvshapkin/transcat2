@@ -29,13 +29,14 @@ namespace transcat {
                 for (auto to_it = next(from_it, 1); to_it != p_bus->route.end(); ++to_it, ++current_it) {
                     if (from_it != to_it) {
                         weight += db_.GetDistance({*current_it, *to_it}) / normal_velocity;
-                        route_graph_.AddEdge({
+                        graph::EdgeId edge_id = route_graph_.AddEdge({
                                                      GetVertexForStop(*from_it),
                                                      GetVertexForStop(*to_it),
                                                      weight + settings_.bus_wait_time,
-                                                     p_bus,
+                                                     //p_bus,
                                                      ++span_count
                                              });
+                        SetBusForEdge(edge_id, p_bus);
                     }
                     //if (*to_it == p_bus->end_stop && !p_bus->is_roundtrip) {
                     if (!p_bus->is_roundtrip && to_it == next(p_bus->route.begin(), p_bus->route.size()/2)) {
@@ -113,6 +114,14 @@ namespace transcat {
 
     StopPtr RequestHandler::GetStopForVertex(graph::VertexId vertex_id) const {
         return vrtx_to_stops_.at(vertex_id);
+    }
+
+    const Bus* RequestHandler::GetBusByEdge(graph::EdgeId edge_id) const {
+        return db_.GetBusByEdge(edge_id);
+    }
+
+    void RequestHandler::SetBusForEdge(graph::EdgeId edge_id, const Bus* p_bus) const {
+        db_.SetBusForEdge(edge_id, p_bus);
     }
 
 } // namespace transcat

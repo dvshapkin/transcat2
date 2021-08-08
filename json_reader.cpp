@@ -372,7 +372,8 @@ namespace transcat::query {
 
         for (graph::EdgeId edge_id: route_info.edges) {
             auto edge = handler.GetRouteGraph().GetEdge(edge_id);
-            const Bus *p_bus = static_cast<const Bus *>(edge.p_bus);
+            //const Bus *p_bus = static_cast<const Bus *>(edge.p_bus);
+            const Bus *p_bus = handler.GetBusByEdge(edge_id);
 
             json::Dict item_wait = MakeWaitItem(handler.GetStopForVertex(edge.from)->name, settings.bus_wait_time);
             items.push_back(std::move(item_wait));

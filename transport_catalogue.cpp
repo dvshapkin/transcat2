@@ -85,6 +85,15 @@ namespace transcat {
         return stops_.size();
     }
 
+    const Bus* TransportCatalogue::GetBusByEdge(graph::EdgeId edge_id) const {
+        return edges_to_buses_[edge_id];
+    }
+
+    void TransportCatalogue::SetBusForEdge(graph::EdgeId edge_id, const Bus* p_bus) const {
+        assert(edge_id == edges_to_buses_.size());
+        edges_to_buses_.push_back(p_bus);
+    }
+
     namespace geo {
 
         double ComputeRouteGeoLength(const Bus *p_bus) {

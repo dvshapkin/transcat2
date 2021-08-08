@@ -56,6 +56,10 @@ namespace transcat {
 
         size_t EvaluateVertexCount() const noexcept;
 
+        const Bus* GetBusByEdge(graph::EdgeId edge_id) const;
+
+        void SetBusForEdge(graph::EdgeId edge_id, const Bus* p_bus) const;
+
     private:
         std::deque<Stop> stops_;
         std::deque<Bus> buses_;
@@ -63,9 +67,7 @@ namespace transcat {
         std::map<std::string_view, const Bus *> buses_by_name_;
         std::unordered_map<StopPtr, std::set<const Bus *, BusPtrComparator>> buses_for_stop_;
         std::unordered_map<StopPair, distance_t, StopPairHasher> distances_;
-
-    public:
-
+        mutable std::vector<const Bus *> edges_to_buses_;
     };
 
     namespace geo {

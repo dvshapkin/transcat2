@@ -15,7 +15,7 @@ namespace graph {
         VertexId from;
         VertexId to;
         Weight weight;
-        const void * p_bus;
+        //const void * p_bus;
         int span_count;
     };
 

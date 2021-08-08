@@ -34,6 +34,10 @@ int main(int argc, char* argv[]) {
         query::JsonReader json_reader(db, renderer);
         json_reader.ReadData(doc);
 
+        // Построим граф маршрутов
+        RequestHandler handler{db, renderer, json_reader.GetRoutingSettings(), db.EvaluateVertexCount()};
+        graph::Router<double> router(handler.GetRouteGraph());
+
         // Сереализуем
         CatalogueSerializer serializer {db, renderer.GetSettings(), json_reader.GetRoutingSettings()};
         serializer.SerializeTo(settings.file);
