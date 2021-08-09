@@ -18,11 +18,11 @@ namespace graph {
     class Router {
     private:
         using Graph = DirectedWeightedGraph<Weight>;
+    public:
         struct RouteInternalData {
             Weight weight;
             std::optional<EdgeId> prev_edge;
         };
-    public:
         using RoutesInternalData = std::vector<std::vector<std::optional<RouteInternalData>>>;
 
         explicit Router(const Graph &graph);

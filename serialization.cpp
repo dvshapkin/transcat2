@@ -17,7 +17,7 @@ namespace transcat {
                                              const graph::Router<double>::RoutesInternalData &routes_internal_data)
             : db_(db)
             , graph_(graph)
-            , routes_internal_data_(routes_internal_data)
+            , routes_internal_data_(std::move(routes_internal_data))
             , render_settings_(render_settings)
             , routing_settings_(routing_settings) {
     }
@@ -69,7 +69,25 @@ namespace transcat {
     }
 
     void CatalogueSerializer::SerializeRoutesInternalData() {
+        for (const auto &v: routes_internal_data_) {
+            pb3::RoutesInternalData proto_list;
+            for (const auto &data: v) {
+                pb3::OptionalData proto_data;
+                proto_data.set_has_value(data.has_value());
+                if (data.has_value()) {
+                    proto_data.set_weight(data->weight);
 
+                    pb3::OptionalPrevEdge proto_prev_edge;
+                    proto_prev_edge.set_has_value(data->prev_edge.has_value());
+                    if (data->prev_edge.has_value()) {
+                        proto_prev_edge.set_edge(data->prev_edge.value());
+                    }
+                    *proto_data.mutable_prev_edge() = std::move(proto_prev_edge);
+                }
+                proto_list.mutable_list()->Add(std::move(proto_data));
+            }
+            proto_db_.mutable_router()->Add(std::move(proto_list));
+        }
     }
 
     void CatalogueSerializer::SerializeRenderSettings() {
@@ -197,14 +215,31 @@ namespace transcat {
                     proto_edge.from(),
                     proto_edge.to(),
                     proto_edge.weight(),
-                    proto_edge.span_count()
+                    static_cast<int>(proto_edge.span_count())
             };
             graph_.AddEdge(edge);
         }
     }
 
     void CatalogueDeserializer::DeserializeRoutesInternalData() {
-
+        for (const auto& proto_list: proto_db_.router()) {
+            std::vector<std::optional<graph::Router<double>::RouteInternalData>> v;
+            for (const auto& proto_data: proto_list.list()) {
+                if (proto_data.has_value()) {
+                    graph::Router<double>::RouteInternalData data;
+                    data.weight = proto_data.weight();
+                    if (proto_data.prev_edge().has_value()) {
+                        data.prev_edge = proto_data.prev_edge().edge();
+                    } else {
+                        data.prev_edge = std::nullopt;
+                    }
+                    v.push_back(data);
+                } else {
+                    v.emplace_back(std::nullopt);
+                }
+            }
+            routes_internal_data_.push_back(v);
+        }
     }
 
     void CatalogueDeserializer::DeserializeRenderSettings() {

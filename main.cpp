@@ -39,8 +39,9 @@ int main(int argc, char *argv[]) {
         graph::Router<double> router(handler.GetRouteGraph());
 
         // Сереализуем
+        auto rid = router.GetRoutesInternalData();
         CatalogueSerializer serializer{db, renderer.GetSettings(), json_reader.GetRoutingSettings(),
-                                       handler.GetRouteGraph(), router.GetRoutesInternalData()};
+                                       handler.GetRouteGraph(), rid};
         serializer.SerializeTo(settings.file);
 
     } else if (mode == "process_requests"sv) {

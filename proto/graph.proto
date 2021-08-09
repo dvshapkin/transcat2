@@ -6,5 +6,5 @@ message Edge {
   uint64 from = 1;
   uint64 to = 2;
   double weight = 3;
-  int32 span_count = 4;
+  uint32 span_count = 4;
 }
