@@ -17,7 +17,7 @@ namespace transcat {
                                              const graph::Router<double>::RoutesInternalData &routes_internal_data)
             : db_(db)
             , graph_(graph)
-            , routes_internal_data_(std::move(routes_internal_data))
+            , routes_internal_data_(routes_internal_data)
             , render_settings_(render_settings)
             , routing_settings_(routing_settings) {
     }
@@ -76,13 +76,11 @@ namespace transcat {
                 proto_data.set_has_value(data.has_value());
                 if (data.has_value()) {
                     proto_data.set_weight(data->weight);
-
-                    pb3::OptionalPrevEdge proto_prev_edge;
-                    proto_prev_edge.set_has_value(data->prev_edge.has_value());
                     if (data->prev_edge.has_value()) {
+                        pb3::OptionalPrevEdge proto_prev_edge;
                         proto_prev_edge.set_edge(data->prev_edge.value());
+                        *proto_data.mutable_prev_edge() = std::move(proto_prev_edge);
                     }
-                    *proto_data.mutable_prev_edge() = std::move(proto_prev_edge);
                 }
                 proto_list.mutable_list()->Add(std::move(proto_data));
             }
@@ -228,7 +226,7 @@ namespace transcat {
                 if (proto_data.has_value()) {
                     graph::Router<double>::RouteInternalData data;
                     data.weight = proto_data.weight();
-                    if (proto_data.prev_edge().has_value()) {
+                    if (proto_data.has_prev_edge()) {
                         data.prev_edge = proto_data.prev_edge().edge();
                     } else {
                         data.prev_edge = std::nullopt;

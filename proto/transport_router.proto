@@ -8,8 +8,7 @@ message RoutingSettings {
 }
 
 message OptionalPrevEdge {
-    bool has_value = 1;
-    uint64 edge = 2;
+    uint64 edge = 1;
 }
 
 message OptionalData {
