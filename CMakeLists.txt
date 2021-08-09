@@ -34,7 +34,7 @@ add_executable(transport_catalogue
         transport_catalogue.h transport_catalogue.cpp
         profile.h
         serialization.cpp serialization.h
-        ${PROTO_SRCS} ${PROTO_HDRS} main.cpp)
+        ${PROTO_SRCS} ${PROTO_HDRS})
 
 target_include_directories(transport_catalogue PUBLIC ${Protobuf_INCLUDE_DIRS})
 target_include_directories(transport_catalogue PUBLIC ${CMAKE_CURRENT_BINARY_DIR})
