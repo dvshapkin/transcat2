@@ -231,7 +231,7 @@ namespace transcat {
                     } else {
                         data.prev_edge = std::nullopt;
                     }
-                    v.push_back(data);
+                    v.emplace_back(data);
                 } else {
                     v.emplace_back(std::nullopt);
                 }
