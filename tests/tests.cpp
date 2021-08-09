@@ -143,12 +143,10 @@ TEST(SERIALIZE_SUITE, Test_03) {
         RequestHandler handler{db, renderer, json_reader.GetRoutingSettings(), db.EvaluateVertexCount()};
         graph::Router<double> router(handler.GetRouteGraph());
 
-
-
         // Serialization
-        auto rid = router.GetRoutesInternalData();
+        //auto rid = router.GetRoutesInternalData();
         CatalogueSerializer serializer{db, renderer.GetSettings(), json_reader.GetRoutingSettings(),
-                                       handler.GetRouteGraph(), rid};
+                                       handler.GetRouteGraph(), router.GetRoutesInternalData()};
         serializer.SerializeTo(settings.file);
     }
     // Deserialize

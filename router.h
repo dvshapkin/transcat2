@@ -29,7 +29,7 @@ namespace graph {
 
         Router(const Graph &graph, RoutesInternalData routes_internal_data);
 
-        RoutesInternalData GetRoutesInternalData();
+        const RoutesInternalData &GetRoutesInternalData();
 
         struct RouteInfo {
             Weight weight;
@@ -102,7 +102,7 @@ namespace graph {
     }
 
     template<typename Weight>
-    typename Router<Weight>::RoutesInternalData Router<Weight>::GetRoutesInternalData() {
+    const typename Router<Weight>::RoutesInternalData &Router<Weight>::GetRoutesInternalData() {
         return routes_internal_data_;
     }
 
