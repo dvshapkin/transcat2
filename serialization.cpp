@@ -37,6 +37,7 @@ namespace transcat {
     void CatalogueSerializer::SerializeDb() {
 
         std::map<const Stop*, size_t> stops_id;
+        std::map<const Bus*, size_t> buses_id;
 
         // выгрузим stops_
         size_t stop_id = 0;
@@ -45,20 +46,22 @@ namespace transcat {
             stops_id[&stop] = stop_id++;
         }
         // выгрузим buses_
+        size_t bus_id = 0;
         for (const Bus &bus: db_.buses_) {
             proto_db_.mutable_buses()->Add(BusToProto(&bus, stops_id));
+            buses_id[&bus] = bus_id++;
         }
         // выгрузим distances_
         for (const auto &[from_to, distance]: db_.distances_) {
             pb3::Distance proto_distance;
-            *proto_distance.mutable_from() = StopToProto(from_to.from);
-            *proto_distance.mutable_to() = StopToProto(from_to.to);
+            proto_distance.set_from(static_cast<google::protobuf::uint32>(stops_id.at(from_to.from)));
+            proto_distance.set_to(static_cast<google::protobuf::uint32>(stops_id.at(from_to.to)));
             proto_distance.set_distance(distance);
             proto_db_.mutable_distances()->Add(std::move(proto_distance));
         }
         // выгрузим edges_to_buses_
         for (const Bus *p_bus: db_.edges_to_buses_) {
-            proto_db_.mutable_edges_to_buses()->Add(BusToProto(p_bus, stops_id));
+            proto_db_.mutable_edges_to_buses()->Add(buses_id.at(p_bus));
         }
     }
 
@@ -66,8 +69,8 @@ namespace transcat {
         for (graph::EdgeId edge_id = 0; edge_id < graph_.GetEdgeCount(); ++edge_id) {
             const auto &edge = graph_.GetEdge(edge_id);
             pb3::Edge proto_edge;
-            proto_edge.set_from(edge.from);
-            proto_edge.set_to(edge.to);
+            proto_edge.set_from(static_cast<google::protobuf::uint32>(edge.from));
+            proto_edge.set_to(static_cast<google::protobuf::uint32>(edge.to));
             proto_edge.set_weight(edge.weight);
             proto_edge.set_span_count(edge.span_count);
             proto_db_.mutable_edges()->Add(std::move(proto_edge));
@@ -83,7 +86,7 @@ namespace transcat {
                 if (data.has_value()) {
                     proto_data.set_weight(data->weight);
                     if (data->prev_edge.has_value()) {
-                        proto_data.set_prev_edge(data->prev_edge.value());
+                        proto_data.set_prev_edge(static_cast<google::protobuf::int32>(data->prev_edge.value()));
                     } else {
                         proto_data.set_prev_edge(-1);   // -1  - признак отсутствия значения
                     }
@@ -156,13 +159,13 @@ namespace transcat {
     pb3::Bus CatalogueSerializer::BusToProto(const Bus *p_bus, const std::map<const Stop*, size_t> &stops_id) {
         pb3::Bus proto_bus;
         proto_bus.set_name(p_bus->name);
-        proto_bus.set_unique_stops(p_bus->unique_stops);
+        proto_bus.set_unique_stops(static_cast<google::protobuf::uint32>(p_bus->unique_stops));
         proto_bus.set_is_roundtrip(p_bus->is_roundtrip);
         for (StopPtr stop: p_bus->route) {
-            proto_bus.mutable_route()->Add(stops_id.at(stop));
+            proto_bus.mutable_route()->Add(static_cast<google::protobuf::uint32>(stops_id.at(stop)));
         }
-        proto_bus.set_start_stop(stops_id.at(p_bus->start_stop));
-        proto_bus.set_end_stop(stops_id.at(p_bus->end_stop));
+        proto_bus.set_start_stop(static_cast<google::protobuf::uint32>(stops_id.at(p_bus->start_stop)));
+        proto_bus.set_end_stop(static_cast<google::protobuf::uint32>(stops_id.at(p_bus->end_stop)));
         return proto_bus;
     }
 
@@ -221,14 +224,14 @@ namespace transcat {
         // заполним distances_
         for (const auto &proto_distance: proto_db_.distances()) {
             StopPair from_to{
-                    db_.stops_by_name_.at(proto_distance.from().name()),
-                    db_.stops_by_name_.at(proto_distance.to().name())
+                    &db_.stops_.at(proto_distance.from()),
+                    &db_.stops_.at(proto_distance.to())
             };
             db_.distances_[from_to] = static_cast<distance_t>(proto_distance.distance());
         }
         // заполним edges_to_buses_
-        for (const auto &proto_bus: proto_db_.edges_to_buses()) {
-            db_.edges_to_buses_.push_back(db_.buses_by_name_[proto_bus.name()]);
+        for (const auto bus_id: proto_db_.edges_to_buses()) {
+            db_.edges_to_buses_.push_back(&db_.buses_.at(bus_id));
         }
     }
 

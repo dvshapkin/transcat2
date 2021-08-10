@@ -43,10 +43,10 @@ string(REPLACE "protobuf.lib" "protobufd.lib" "Protobuf_LIBRARY_DEBUG" "${Protob
 string(REPLACE "protobuf.a" "protobufd.a" "Protobuf_LIBRARY_DEBUG" "${Protobuf_LIBRARY_DEBUG}")
 target_link_libraries(transport_catalogue "$<IF:$<CONFIG:Debug>,${Protobuf_LIBRARY_DEBUG},${Protobuf_LIBRARY}>" Threads::Threads)
 
-if (UNIX)
-    target_compile_options(transport_catalogue PRIVATE -Wall -Wextra)
-else ()
-    target_compile_options(transport_catalogue PRIVATE /W3 /WX)
-endif ()
+#if (UNIX)
+#    target_compile_options(transport_catalogue PRIVATE -Wall -Wextra)
+#else ()
+#    target_compile_options(transport_catalogue PRIVATE /W3 /WX)
+#endif ()
 
 add_subdirectory(tests)

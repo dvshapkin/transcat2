@@ -14,24 +14,24 @@ message Stop {
 
 message Bus {
   string name = 1;
-  repeated uint64 route = 2;
-  uint64 unique_stops = 3;
+  repeated uint32 route = 2;
+  uint32 unique_stops = 3;
   bool is_roundtrip = 4;
-  uint64 start_stop = 5;
-  uint64 end_stop = 6;
+  uint32 start_stop = 5;
+  uint32 end_stop = 6;
 }
 
 message Distance {
-  Stop from = 1;
-  Stop to = 2;
-  int64 distance = 3;
+  uint32 from = 1;
+  uint32 to = 2;
+  uint32 distance = 3;
 }
 
 message TransportCatalogue {
   repeated Stop stops = 1;
   repeated Bus buses = 2;
   repeated Distance distances = 3;
-  repeated Bus edges_to_buses = 4;
+  repeated uint32 edges_to_buses = 4;
   repeated Edge edges = 5;
   repeated RoutesInternalData router = 6;
   RenderSettings render_settings = 7;

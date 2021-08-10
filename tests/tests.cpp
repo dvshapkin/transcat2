@@ -189,7 +189,6 @@ TEST(SERIALIZE_SUITE, Test_10) {
         graph::Router<double> router(handler.GetRouteGraph());
 
         // Serialization
-        //auto rid = router.GetRoutesInternalData();
         CatalogueSerializer serializer{db, renderer.GetSettings(), json_reader.GetRoutingSettings(),
                                        handler.GetRouteGraph(), router.GetRoutesInternalData()};
         serializer.SerializeTo(settings.file);

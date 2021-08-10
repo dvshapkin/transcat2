@@ -24,7 +24,6 @@ int main(int argc, char *argv[]) {
 
     TransportCatalogue db;
     renderer::MapRenderer renderer;
-    //RoutingSettings routing_settings;
 
     const std::string_view mode(argv[1]);
 
@@ -39,7 +38,6 @@ int main(int argc, char *argv[]) {
         graph::Router<double> router(handler.GetRouteGraph());
 
         // Сереализуем
-        //auto rid = router.GetRoutesInternalData();
         CatalogueSerializer serializer{db, renderer.GetSettings(), json_reader.GetRoutingSettings(),
                                        handler.GetRouteGraph(), router.GetRoutesInternalData()};
         serializer.SerializeTo(settings.file);
