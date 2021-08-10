@@ -1,4 +1,5 @@
 #include <fstream>
+#include <map>
 
 #include "serialization.h"
 
@@ -34,25 +35,30 @@ namespace transcat {
     }
 
     void CatalogueSerializer::SerializeDb() {
+
+        std::map<const Stop*, size_t> stops_id;
+
         // выгрузим stops_
+        size_t stop_id = 0;
         for (const Stop &stop: db_.stops_) {
-            proto_db_.mutable_stops()->Add(stop.ToProto());
+            proto_db_.mutable_stops()->Add(StopToProto(&stop));
+            stops_id[&stop] = stop_id++;
         }
         // выгрузим buses_
         for (const Bus &bus: db_.buses_) {
-            proto_db_.mutable_buses()->Add(bus.ToProto());
+            proto_db_.mutable_buses()->Add(BusToProto(&bus));
         }
         // выгрузим distances_
         for (const auto &[from_to, distance]: db_.distances_) {
             pb3::Distance proto_distance;
-            *proto_distance.mutable_from() = from_to.from->ToProto();
-            *proto_distance.mutable_to() = from_to.to->ToProto();
+            *proto_distance.mutable_from() = StopToProto(from_to.from);
+            *proto_distance.mutable_to() = StopToProto(from_to.to);
             proto_distance.set_distance(distance);
             proto_db_.mutable_distances()->Add(std::move(proto_distance));
         }
         // выгрузим edges_to_buses_
         for (const Bus *p_bus: db_.edges_to_buses_) {
-            proto_db_.mutable_edges_to_buses()->Add(p_bus->ToProto());
+            proto_db_.mutable_edges_to_buses()->Add(BusToProto(p_bus));
         }
     }
 
@@ -142,6 +148,31 @@ namespace transcat {
         return proto_color;
     }
 
+    pb3::Stop CatalogueSerializer::StopToProto(const Stop* p_stop) {
+        pb3::Stop proto_stop;
+        proto_stop.set_name(p_stop->name);
+        proto_stop.set_latitude(p_stop->latitude);
+        proto_stop.set_longitude(p_stop->longitude);
+        return proto_stop;
+    }
+
+    pb3::Bus CatalogueSerializer::BusToProto(const Bus *p_bus) {
+        pb3::Bus proto_bus;
+        proto_bus.set_name(p_bus->name);
+        proto_bus.set_unique_stops(p_bus->unique_stops);
+        proto_bus.set_is_roundtrip(p_bus->is_roundtrip);
+        for (StopPtr stop: p_bus->route) {
+            proto_bus.mutable_route()->Add(StopToProto(stop));
+        }
+        *proto_bus.mutable_start_stop() = StopToProto(p_bus->start_stop);
+        *proto_bus.mutable_end_stop() = StopToProto(p_bus->end_stop);
+        return proto_bus;
+    }
+
+
+
+
+
 
     ///////////////////////////////////////////////////////////////////////////////////////////////
     //
@@ -183,12 +214,12 @@ namespace transcat {
     void CatalogueDeserializer::DeserializeDb() const {
         // заполним stops_ и stops_by_name_
         for (const auto &proto_stop: proto_db_.stops()) {
-            auto &ref_stop = db_.stops_.emplace_back(Stop::FromProto(proto_stop));
+            auto &ref_stop = db_.stops_.emplace_back(StopFromProto(proto_stop));
             db_.stops_by_name_[ref_stop.name] = &ref_stop;
         }
         // заполним buses_ и buses_by_name_
         for (const auto &proto_bus: proto_db_.buses()) {
-            auto &ref_bus = db_.buses_.emplace_back(Bus::FromProto(proto_bus, db_.stops_by_name_));
+            auto &ref_bus = db_.buses_.emplace_back(BusFromProto(proto_bus, db_.stops_by_name_));
             db_.buses_by_name_[ref_bus.name] = &ref_bus;
             for (StopPtr p_stop: ref_bus.route) {
                 db_.buses_for_stop_[p_stop].insert(&ref_bus);
@@ -292,5 +323,28 @@ namespace transcat {
         } else {
             return proto_color.str_color();
         }
+    }
+
+    Stop CatalogueDeserializer::StopFromProto(const pb3::Stop &proto_stop) {
+        return {
+            proto_stop.name(),
+            proto_stop.latitude(),
+            proto_stop.longitude()
+        };
+    }
+
+    Bus CatalogueDeserializer::BusFromProto(const pb3::Bus &proto_bus, const std::map<std::string_view, StopPtr> &stops_by_name) {
+        Route route;
+        for (const pb3::Stop &proto_stop: proto_bus.route()) {
+            route.emplace_back(stops_by_name.at(proto_stop.name()));
+        }
+        return {
+            proto_bus.name(),
+            std::move(route),
+            proto_bus.unique_stops(),
+            proto_bus.is_roundtrip(),
+            stops_by_name.at(proto_bus.start_stop().name()),
+            stops_by_name.at(proto_bus.end_stop().name())
+        };
     }
 }
