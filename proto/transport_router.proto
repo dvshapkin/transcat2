@@ -7,14 +7,14 @@ message RoutingSettings {
     double bus_velocity = 2;
 }
 
-message OptionalPrevEdge {
-    uint64 edge = 1;
-}
+//message OptionalPrevEdge {
+//    uint64 edge = 1;
+//}
 
 message OptionalData {
     bool has_value = 1;
     double weight = 2;
-    OptionalPrevEdge prev_edge = 3;
+    int64 prev_edge = 3;
 }
 
 message RoutesInternalData {
