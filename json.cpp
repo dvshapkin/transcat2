@@ -224,7 +224,7 @@ namespace json {
 
         struct PrintContext {
             std::ostream& out;
-            int indent_step = 2;
+            int indent_step = 4;
             int indent = 0;
 
             void PrintIndent() const {

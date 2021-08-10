@@ -39,7 +39,7 @@ namespace transcat {
 
         static pb3::Stop StopToProto(const Stop *p_stop);
 
-        static pb3::Bus BusToProto(const Bus *p_bus);
+        static pb3::Bus BusToProto(const Bus *p_bus, const std::map<const Stop*, size_t> &stops_id);
 
     private:
         const TransportCatalogue &db_;
@@ -85,7 +85,7 @@ namespace transcat {
 
         static Stop StopFromProto(const pb3::Stop &proto_stop);
 
-        static Bus BusFromProto(const pb3::Bus &proto_bus, const std::map<std::string_view, StopPtr> &stops_by_name);
+        static Bus BusFromProto(const pb3::Bus &proto_bus, const std::deque<Stop> &stops);
 
     private:
         TransportCatalogue &db_;

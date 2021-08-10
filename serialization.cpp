@@ -46,7 +46,7 @@ namespace transcat {
         }
         // выгрузим buses_
         for (const Bus &bus: db_.buses_) {
-            proto_db_.mutable_buses()->Add(BusToProto(&bus));
+            proto_db_.mutable_buses()->Add(BusToProto(&bus, stops_id));
         }
         // выгрузим distances_
         for (const auto &[from_to, distance]: db_.distances_) {
@@ -58,7 +58,7 @@ namespace transcat {
         }
         // выгрузим edges_to_buses_
         for (const Bus *p_bus: db_.edges_to_buses_) {
-            proto_db_.mutable_edges_to_buses()->Add(BusToProto(p_bus));
+            proto_db_.mutable_edges_to_buses()->Add(BusToProto(p_bus, stops_id));
         }
     }
 
@@ -83,9 +83,6 @@ namespace transcat {
                 if (data.has_value()) {
                     proto_data.set_weight(data->weight);
                     if (data->prev_edge.has_value()) {
-//                        pb3::OptionalPrevEdge proto_prev_edge;
-//                        proto_prev_edge.set_edge(data->prev_edge.value());
-//                        *proto_data.mutable_prev_edge() = std::move(proto_prev_edge);
                         proto_data.set_prev_edge(data->prev_edge.value());
                     } else {
                         proto_data.set_prev_edge(-1);   // -1  - признак отсутствия значения
@@ -156,22 +153,18 @@ namespace transcat {
         return proto_stop;
     }
 
-    pb3::Bus CatalogueSerializer::BusToProto(const Bus *p_bus) {
+    pb3::Bus CatalogueSerializer::BusToProto(const Bus *p_bus, const std::map<const Stop*, size_t> &stops_id) {
         pb3::Bus proto_bus;
         proto_bus.set_name(p_bus->name);
         proto_bus.set_unique_stops(p_bus->unique_stops);
         proto_bus.set_is_roundtrip(p_bus->is_roundtrip);
         for (StopPtr stop: p_bus->route) {
-            proto_bus.mutable_route()->Add(StopToProto(stop));
+            proto_bus.mutable_route()->Add(stops_id.at(stop));
         }
-        *proto_bus.mutable_start_stop() = StopToProto(p_bus->start_stop);
-        *proto_bus.mutable_end_stop() = StopToProto(p_bus->end_stop);
+        proto_bus.set_start_stop(stops_id.at(p_bus->start_stop));
+        proto_bus.set_end_stop(stops_id.at(p_bus->end_stop));
         return proto_bus;
     }
-
-
-
-
 
 
     ///////////////////////////////////////////////////////////////////////////////////////////////
@@ -219,7 +212,7 @@ namespace transcat {
         }
         // заполним buses_ и buses_by_name_
         for (const auto &proto_bus: proto_db_.buses()) {
-            auto &ref_bus = db_.buses_.emplace_back(BusFromProto(proto_bus, db_.stops_by_name_));
+            auto &ref_bus = db_.buses_.emplace_back(BusFromProto(proto_bus, db_.stops_));
             db_.buses_by_name_[ref_bus.name] = &ref_bus;
             for (StopPtr p_stop: ref_bus.route) {
                 db_.buses_for_stop_[p_stop].insert(&ref_bus);
@@ -260,12 +253,6 @@ namespace transcat {
                 if (proto_data.has_value()) {
                     graph::Router<double>::RouteInternalData data;
                     data.weight = proto_data.weight();
-//                    if (proto_data.has_prev_edge()) {
-//                        //data.prev_edge = proto_data.prev_edge().edge();
-//                        //data.prev_edge = proto_data.prev_edge();
-//                    } else {
-//                        data.prev_edge = std::nullopt;
-//                    }
                     if (proto_data.prev_edge() == -1) {
                         data.prev_edge = std::nullopt;
                     } else {
@@ -333,18 +320,18 @@ namespace transcat {
         };
     }
 
-    Bus CatalogueDeserializer::BusFromProto(const pb3::Bus &proto_bus, const std::map<std::string_view, StopPtr> &stops_by_name) {
+    Bus CatalogueDeserializer::BusFromProto(const pb3::Bus &proto_bus, const std::deque<Stop> &stops) {
         Route route;
-        for (const pb3::Stop &proto_stop: proto_bus.route()) {
-            route.emplace_back(stops_by_name.at(proto_stop.name()));
+        for (const size_t stop_id: proto_bus.route()) {
+            route.emplace_back(&stops.at(stop_id));
         }
         return {
             proto_bus.name(),
             std::move(route),
             proto_bus.unique_stops(),
             proto_bus.is_roundtrip(),
-            stops_by_name.at(proto_bus.start_stop().name()),
-            stops_by_name.at(proto_bus.end_stop().name())
+            &stops.at(proto_bus.start_stop()),
+            &stops.at(proto_bus.end_stop())
         };
     }
 }

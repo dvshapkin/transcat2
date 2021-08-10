@@ -14,11 +14,11 @@ message Stop {
 
 message Bus {
   string name = 1;
-  repeated Stop route = 2;
+  repeated uint64 route = 2;
   uint64 unique_stops = 3;
   bool is_roundtrip = 4;
-  Stop start_stop = 5;
-  Stop end_stop = 6;
+  uint64 start_stop = 5;
+  uint64 end_stop = 6;
 }
 
 message Distance {
